@@ -35,7 +35,7 @@ const easeInOut = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 
 // Scroll timeline (0..1 across the pinned hero)
 const T = {
-  orbitEnd: 0.58,                   // one full helix around the boat
+  orbitEnd: 0.58,                   // three-quarter helix, pulling out, ending behind the stern
   driveStart: 0.56, driveEnd: 0.86, // boat powers away
   logoStart: 0.66, logoEnd: 0.86,
   copyStart: 0.86, copyEnd: 0.97,
@@ -130,19 +130,19 @@ function init() {
   function orbitPos(s, out) {
     // Portrait screens sit further back so the whole hull fits side-on
     const fit = Math.max(1, 0.95 / camera.aspect);
-    const phi = s * Math.PI * 2;
-    const R = lerp(11.5, 16, s) * fit;
-    const h = lerp(1.6, 7.5, easeInOut(s));
+    const phi = s * Math.PI * 1.5;                     // 270°: starboard -> bow -> port -> stern
+    const R = lerp(11.5, 26, easeInOut(s)) * fit;      // drone pulls out as it circles
+    const h = lerp(1.6, 9, easeInOut(s));
     return out.set(Math.sin(phi) * R, h, Math.cos(phi) * R);
   }
 
-  const LABELS = ['Starboard profile', 'Bow', 'Port side', 'Stern', 'Starboard, from above'];
+  const LABELS = ['Starboard profile', 'Bow', 'Port side', 'Astern'];
   let lastLabel = '';
 
   /* ---------------- frame ---------------- */
   let ps = progress(), time = 0, intro = 0;
   const end = new THREE.Vector3();
-  const finalCam = new THREE.Vector3(-7, 2.6, 13);
+  const finalCam = new THREE.Vector3(-16, 3.2, 3);   // low, just off the stern quarter
 
   function update(dt, p) {
     time += dt;
@@ -187,7 +187,7 @@ function init() {
     hudHdg.textContent = String(hdg).padStart(3, '0') + '°';
     hudAlt.textContent = Math.max(1, Math.round(camera.position.y)) + ' m';
     hudBar.style.transform = `scaleX(${d > 0 ? 1 : s})`;
-    const label = d > 0.02 ? 'Underway' : LABELS[Math.min(4, Math.floor((s + 0.125) * 4))];
+    const label = d > 0.02 ? 'Underway' : LABELS[Math.round(s * 3)];
     if (label !== lastLabel) { hudLabel.textContent = label; lastLabel = label; }
 
     overlay(ps);
