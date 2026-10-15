@@ -49,6 +49,14 @@ h2 { font-size: clamp(2.1rem, 4.6vw, 3.6rem); letter-spacing: -.01em; }
 }
 @keyframes shimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
 
+/* Italic serif emphasis word in headlines (needs DM Serif Display italic loaded) */
+.it, h2 .shine, .footer-line .shine, .nav-brand em { font-family: var(--serif); font-style: italic; font-weight: 400; }
+h2 .shine, .footer-line .shine { padding-right: .08em; } /* keep italic overhang inside the clipped gradient */
+.it { color: var(--sea); }
+.services .it, .sell .it { color: var(--gold); }
+.contact .it { color: var(--gold-dark); }
+.nav-brand em { color: var(--gold); letter-spacing: .01em; }
+
 /* ---------- Buttons (ripple + sheen) ---------- */
 .btn {
   position: relative; isolation: isolate; overflow: hidden;
@@ -370,8 +378,8 @@ main > section.sell { padding-bottom: clamp(9rem, 16vw, 12rem); }
 .stamp-bg { fill: var(--navy); }
 .stamp-ring { transform-origin: 100px 100px; animation: spin 22s linear infinite; }
 .stamp:hover .stamp-ring { animation-duration: 6s; }
-.stamp-text { font-family: var(--sans); font-weight: 700; font-size: 15px; fill: var(--cream); }
-.stamp-mono { font-family: var(--serif); font-size: 40px; fill: var(--cream); }
+.stamp-text { font-family: var(--sans); font-weight: 700; font-size: 17px; letter-spacing: .06em; fill: var(--cream); }
+.stamp-mono { font-family: var(--serif); font-size: 58px; fill: var(--cream); }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ---------- Contact ---------- */

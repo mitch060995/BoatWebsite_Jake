@@ -3,26 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Jake &amp; Taylor's Boats</title>
-  <meta name="description" content="Jake & Taylor's — new and pre-owned boats, brokerage and trade-ins.">
+  <title>Fraser Marine Sales</title>
+  <meta name="description" content="Fraser Marine Sales — new and pre-owned boats, brokerage and trade-ins.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/hero.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
 </head>
 <body>
-
-  <!-- Ripple distortion used while the logo surfaces -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-    <filter id="ripple" x="-20%" y="-20%" width="140%" height="140%">
-      <feTurbulence id="rippleTurb" type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="3" result="noise"/>
-      <feDisplacementMap id="rippleDisp" in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-  </svg>
+  <div id="top"></div>
 
   <header class="nav" id="nav">
-    <a class="nav-brand" href="#top">Jake &amp; Taylor's</a>
+    <a class="nav-brand" href="#top" aria-label="Fraser Marine Sales — back to top">Fraser <em>Marine</em></a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span></button>
     <nav class="nav-links" id="navLinks" aria-label="Main">
       <a href="#boats" style="--i:0">Boats</a>
@@ -33,91 +34,37 @@
     </nav>
   </header>
 
-  <!-- HERO: boat idles, sails down on scroll, then ripples into the logo -->
+  <!-- HERO: a drone circles the boat in a rising helix as you scroll, the boat drives off into the sun, then the logo appears -->
   <section class="hero" id="hero">
-    <div class="hero-sticky">
-      <canvas id="water" aria-hidden="true"></canvas>
-      <div class="hero-glow" id="heroGlow"></div>
+    <div class="hero-sticky" id="heroStage">
+      <canvas id="scene" aria-hidden="true"></canvas>
+      <div class="hero-shade" id="heroShade"></div>
 
-      <div class="boat" id="boat" aria-hidden="true">
-        <!-- Top-down speedboat, bow pointing down -->
-        <svg viewBox="0 0 100 250" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="hullG" x1="0" x2="1">
-              <stop offset="0" stop-color="#d9e2e7"/>
-              <stop offset=".5" stop-color="#ffffff"/>
-              <stop offset="1" stop-color="#cfd9df"/>
-            </linearGradient>
-            <linearGradient id="deckG" x1="0" x2="1">
-              <stop offset="0" stop-color="#a8774a"/>
-              <stop offset=".5" stop-color="#c8955f"/>
-              <stop offset="1" stop-color="#a8774a"/>
-            </linearGradient>
-          </defs>
-          <!-- outboard engine -->
-          <rect x="38" y="0" width="24" height="16" rx="5" fill="#1d2a33"/>
-          <rect x="42" y="3" width="16" height="4" rx="2" fill="#3a4b57"/>
-          <!-- hull -->
-          <path d="M10 14 Q50 8 90 14 L92 110 C92 170 78 220 50 248 C22 220 8 170 8 110 Z" fill="url(#hullG)"/>
-          <!-- gunwale stripe -->
-          <path d="M14 18 Q50 13 86 18 L87 110 C87 166 74 212 50 238 C26 212 13 166 13 110 Z" fill="none" stroke="#0e4a6b" stroke-width="2.5"/>
-          <!-- deck -->
-          <path d="M19 24 Q50 20 81 24 L81 108 C81 150 72 180 50 205 C28 180 19 150 19 108 Z" fill="url(#deckG)"/>
-          <g stroke="#8a5f38" stroke-width=".8" opacity=".6">
-            <line x1="30" y1="24" x2="30" y2="170"/><line x1="40" y1="22" x2="40" y2="195"/>
-            <line x1="50" y1="21" x2="50" y2="205"/><line x1="60" y1="22" x2="60" y2="195"/>
-            <line x1="70" y1="24" x2="70" y2="170"/>
-          </g>
-          <!-- rear bench -->
-          <rect x="22" y="30" width="56" height="20" rx="6" fill="#f2efe8"/>
-          <rect x="22" y="30" width="56" height="6" rx="3" fill="#ddd6c8"/>
-          <!-- helm seats -->
-          <rect x="26" y="78" width="18" height="18" rx="5" fill="#f2efe8"/>
-          <rect x="56" y="78" width="18" height="18" rx="5" fill="#f2efe8"/>
-          <!-- console + windshield -->
-          <rect x="54" y="104" width="22" height="16" rx="4" fill="#e9edf0"/>
-          <circle cx="65" cy="110" r="3.5" fill="#1d2a33"/>
-          <path d="M18 122 Q50 136 82 122 L80 130 Q50 145 20 130 Z" fill="#7fb6d2" opacity=".85"/>
-          <path d="M18 122 Q50 136 82 122" fill="none" stroke="#e9edf0" stroke-width="2"/>
-          <!-- bow deck -->
-          <path d="M26 150 Q50 160 74 150 C70 175 62 192 50 204 C38 192 30 175 26 150 Z" fill="#f2efe8"/>
-          <circle cx="50" cy="222" r="2.5" fill="#9aa8b1"/>
-        </svg>
+      <div class="hero-intro" id="heroIntro">
+        <p class="hero-eyebrow">Fraser Marine Sales</p>
+        <h2 class="hero-title">Every boat, seen from <em>every</em> angle.</h2>
       </div>
 
-      <div class="logo-wrap" id="logo">
-        <svg viewBox="0 0 400 400" role="img" aria-label="Jake and Taylor's Boat Sales">
-          <defs>
-            <path id="arcTop" d="M 40,200 A 160,160 0 0,1 360,200"/>
-            <path id="arcBot" d="M 22,200 A 178,178 0 0,0 378,200"/>
-          </defs>
-          <circle cx="200" cy="200" r="194" fill="rgba(6,30,46,.35)" stroke="#f4ebdd" stroke-width="3"/>
-          <circle cx="200" cy="200" r="146" fill="none" stroke="#f4ebdd" stroke-width="1.5" opacity=".7"/>
-          <text class="logo-arc"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">JAKE &amp; TAYLOR'S</textPath></text>
-          <text class="logo-arc logo-arc-sm"><textPath href="#arcBot" startOffset="50%" text-anchor="middle">BOAT SALES · BUY · SELL · TRADE</textPath></text>
-          <circle cx="30" cy="200" r="4" fill="#e0aa5a"/>
-          <circle cx="370" cy="200" r="4" fill="#e0aa5a"/>
-          <!-- side-view boat -->
-          <g transform="translate(130 108)">
-            <path d="M8 40 L132 36 Q142 36 138 44 L122 58 Q119 61 112 61 L28 61 Q16 61 11 54 Z" fill="#f4ebdd"/>
-            <path d="M40 38 L56 20 L98 20 L108 36 Z" fill="#f4ebdd"/>
-            <path d="M60 24 L94 24 L100 33 L54 33 Z" fill="#0b3550"/>
-            <path d="M12 50 L136 46" stroke="#e0aa5a" stroke-width="3"/>
-          </g>
-          <text x="200" y="245" class="logo-mono" text-anchor="middle">J&amp;T</text>
-          <!-- waves -->
-          <g fill="none" stroke="#e0aa5a" stroke-width="3" stroke-linecap="round">
-            <path d="M120 272 q13 -10 26 0 t26 0 t26 0 t26 0 t26 0 t26 0"/>
-          </g>
-          <g fill="none" stroke="#f4ebdd" stroke-width="2" stroke-linecap="round" opacity=".7">
-            <path d="M146 290 q9 -7 18 0 t18 0 t18 0 t18 0 t18 0 t18 0"/>
-          </g>
+      <div class="hud" id="hud" aria-hidden="true">
+        <div class="hud-row"><span class="hud-dot"></span><span id="hudLabel">Starboard profile</span></div>
+        <div class="hud-bar"><i id="hudBar"></i></div>
+        <div class="hud-row hud-data"><span>HDG <b id="hudHdg">000°</b></span><span>ALT <b id="hudAlt">2 m</b></span></div>
+      </div>
+
+      <div class="logo-wrap" id="logo" role="img" aria-label="Fraser Marine Sales">
+        <svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="ring" cx="60" cy="60" r="54" pathLength="1"/>
+          <circle class="ring ring-in" cx="60" cy="60" r="46" pathLength="1"/>
+          <text x="60" y="76" text-anchor="middle" class="mark-f">F</text>
+          <path class="mark-wave" d="M30 90 q7.5 -6 15 0 t15 0 t15 0 t15 0" pathLength="1"/>
         </svg>
+        <div class="logo-word" aria-hidden="true"><span>F</span><span>R</span><span>A</span><span>S</span><span>E</span><span>R</span></div>
+        <div class="logo-sub" aria-hidden="true"><i></i><span>Marine Sales</span><i></i></div>
       </div>
 
       <div class="hero-copy" id="heroCopy">
-        <h1>Find your next boat.</h1>
-        <p>New &amp; pre-owned boats, brokerage and trade-ins — from people who live on the water.</p>
+        <h1>Find your <em>next</em> boat.</h1>
+        <p>New &amp; pre-owned boats, brokerage and trade-ins, with straight answers from people who know the water.</p>
         <div class="hero-actions">
           <a href="#boats" class="btn btn-gold">Browse boats</a>
           <a href="#sell" class="btn btn-ghost">Sell your boat</a>
@@ -125,7 +72,7 @@
       </div>
 
       <div class="scroll-hint" id="hint">
-        <span>Scroll to set sail</span>
+        <span>Scroll to fly around</span>
         <i></i>
       </div>
     </div>
@@ -133,7 +80,7 @@
 
   <main>
     <section class="intro">
-      <p class="eyebrow reveal">Jake &amp; Taylor's</p>
+      <p class="eyebrow reveal">Fraser Marine Sales</p>
       <h2 data-split>Boats bought, sold and traded with an <em class="shine">honest handshake.</em></h2>
       <p class="intro-lede reveal" style="--d:.35s">Whether you're after your first runabout or stepping up to a cruiser, we'll help you find the right boat, get a fair price for the one you've got, and get you out on the water sooner.</p>
       <ul class="stats" id="stats">
@@ -157,7 +104,7 @@
     <section class="boats" id="boats">
       <div class="section-head">
         <p class="eyebrow reveal">In stock</p>
-        <h2 data-split>Featured boats</h2>
+        <h2 data-split>Featured <em class="it">boats</em></h2>
       </div>
       <div class="filters reveal" style="--d:.2s" id="filters" role="group" aria-label="Filter boats by type">
         <button class="chip active" data-filter="all" aria-pressed="true">All</button>
@@ -174,7 +121,7 @@
     <section class="services" id="services">
       <div class="section-head">
         <p class="eyebrow reveal">What we do</p>
-        <h2 data-split>Everything from the first look to the first launch</h2>
+        <h2 data-split>Everything from the first look to the first <em class="it">launch</em></h2>
       </div>
       <div class="service-grid">
         <article class="service reveal" style="--d:0s">
@@ -247,7 +194,7 @@
       <div class="sell-inner">
         <div>
           <p class="eyebrow reveal">Selling?</p>
-          <h2 data-split>Get a free valuation on your boat.</h2>
+          <h2 data-split>Get a free valuation on your <em class="it">boat.</em></h2>
           <p class="reveal" style="--d:.3s">Send us a few details and photos — we'll come back with a fair, no-pressure offer or a brokerage plan.</p>
         </div>
         <div class="magnet-zone reveal" style="--d:.45s">
@@ -261,9 +208,9 @@
     <section class="about" id="about">
       <div class="about-grid">
         <div class="about-text">
-          <p class="eyebrow reveal">About us</p>
-          <h2 data-split>Two people, one passion for boats.</h2>
-          <p class="reveal" style="--d:.3s">Jake &amp; Taylor's started with a simple idea: buying a boat should be as enjoyable as owning one. No pushy sales, no surprises — just straight answers and boats we'd be happy to take out ourselves.</p>
+          <p class="eyebrow reveal">About Fraser Marine</p>
+          <h2 data-split>Boat buying, done <em class="it">properly.</em></h2>
+          <p class="reveal" style="--d:.3s">At Fraser Marine Sales, buying a boat should feel as good as owning one. No pushy sales, no surprises — just straight answers, fair numbers and boats we'd be happy to take out ourselves.</p>
           <ul class="ticks">
             <li class="reveal" style="--d:.4s">Every boat inspected before it's listed</li>
             <li class="reveal" style="--d:.5s">Clear pricing and full history where available</li>
@@ -346,10 +293,10 @@
               <defs><path id="stampPath" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"/></defs>
               <circle class="stamp-bg" cx="100" cy="100" r="98"/>
               <g class="stamp-ring">
-                <text class="stamp-text"><textPath href="#stampPath" textLength="470" lengthAdjust="spacingAndGlyphs">FAMILY RUN · HONEST DEALS · FAMILY RUN · HONEST DEALS ·</textPath></text>
+                <text class="stamp-text"><textPath href="#stampPath" textLength="470" lengthAdjust="spacing">BUY · SELL · TRADE · FRASER MARINE ·</textPath></text>
               </g>
               <circle cx="100" cy="100" r="58" fill="none" stroke="#e0aa5a" stroke-width="1.5"/>
-              <text class="stamp-mono" x="100" y="110" text-anchor="middle">J&amp;T</text>
+              <text class="stamp-mono" x="100" y="116" text-anchor="middle">F</text>
               <path d="M74 126 q6.5 -5 13 0 t13 0 t13 0 t13 0" fill="none" stroke="#e0aa5a" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
           </div>
@@ -363,7 +310,7 @@
       <div class="contact-grid">
         <div>
           <p class="eyebrow reveal">Get in touch</p>
-          <h2 data-split>Let's talk boats.</h2>
+          <h2 data-split>Let's talk <em class="it">boats.</em></h2>
           <p class="reveal" style="--d:.3s">Questions about a listing, a trade-in or a valuation? Drop us a message and we'll get back to you.</p>
           <dl class="contact-list reveal" style="--d:.45s">
             <dt>Phone</dt><dd><a href="tel:+0000000000">(000) 000-0000</a></dd>
@@ -408,15 +355,19 @@
       <a href="#contact" class="btn btn-ghost">Start a conversation</a>
     </div>
     <div class="footer-bottom">
-      <span class="nav-brand">Jake &amp; Taylor's</span>
+      <span class="nav-brand">Fraser <em>Marine</em> Sales</span>
       <nav class="footer-links" aria-label="Footer">
         <a href="#boats">Boats</a><a href="#services">Services</a><a href="#sell">Sell</a><a href="#about">About</a><a href="#contact">Contact</a>
       </nav>
-      <span>© <span id="year"></span> Jake &amp; Taylor's Boat Sales</span>
+      <span>© <span id="year"></span> Fraser Marine Sales</span>
     </div>
   </footer>
 
-  <script src="js/hero.js"></script>
+  <script type="module" src="js/hero.js"></script>
+  <script>
+    // If the 3D scene hasn't started after a few seconds, fall back to the static logo hero
+    setTimeout(function () { var s = document.getElementById('heroStage'); if (!s.classList.contains('ready')) s.classList.add('no-3d'); }, 7000);
+  </script>
   <script src="js/site.js"></script>
 </body>
 </html>

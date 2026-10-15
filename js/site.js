@@ -1,5 +1,5 @@
 /* =========================================================
-   Jake & Taylor's — below-the-hero motion layer (vanilla JS)
+   Fraser Marine Sales — below-the-hero motion layer (vanilla JS)
    ========================================================= */
 (() => {
   'use strict';
