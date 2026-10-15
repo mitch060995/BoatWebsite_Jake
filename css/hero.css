@@ -69,7 +69,7 @@
   display: flex; justify-content: center; gap: clamp(.15rem, 1.2vw, .6rem);
   font-family: var(--serif); font-size: clamp(3.4rem, 13vw, 8.5rem); line-height: .9; letter-spacing: .04em;
 }
-.logo-word span { display: inline-block; opacity: 0; will-change: transform, opacity; }
+.logo-word span { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
 .logo-sub {
   display: flex; align-items: center; gap: 1rem; width: 100%; justify-content: center;
   font: 700 clamp(.7rem, 1.6vw, .95rem)/1 var(--sans); letter-spacing: .55em; text-transform: uppercase; color: var(--cream);
