@@ -49,3 +49,9 @@
 }
 @keyframes wheel { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
 
+.hero-sticky { background: #04131d; touch-action: pan-y; }
+.hero-sticky.no-webgl { background: radial-gradient(ellipse at 50% 30%, #0d4a69, #062538 70%); }
+.hero-sticky::before { /* subtle top/bottom fade for the nav + copy */
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(3,14,22,.45), transparent 18%, transparent 70%, rgba(3,14,22,.5));
+}
