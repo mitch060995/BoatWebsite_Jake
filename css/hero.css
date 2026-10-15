@@ -1,0 +1,51 @@
+/* ---------- Hero ---------- */
+.hero { position: relative; height: 420vh; background: var(--navy); }
+.hero-sticky { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
+#water { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hero-sticky::after { /* vignette */
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(3,14,22,.55) 100%);
+}
+.hero-glow {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: radial-gradient(circle at 50% 42%, rgba(224,170,90,.18), transparent 45%);
+}
+.boat {
+  position: absolute; left: 0; top: 0; z-index: 2;
+  transform-origin: 50% 50%; will-change: transform, opacity, filter;
+}
+.boat svg { width: 100%; height: 100%; }
+.logo-wrap {
+  position: absolute; left: 50%; top: 50%; z-index: 3;
+  width: min(46vh, 78vw, 380px); aspect-ratio: 1;
+  transform: translate(-50%, -50%); opacity: 0; will-change: transform, opacity;
+}
+.logo-wrap svg { width: 100%; height: 100%; overflow: visible; }
+.logo-arc { font-family: var(--sans); font-weight: 700; font-size: 22px; letter-spacing: 6px; fill: var(--cream); }
+.logo-arc-sm { font-size: 13px; letter-spacing: 4px; fill: var(--gold); }
+.logo-mono { font-family: var(--serif); font-size: 92px; fill: var(--cream); }
+
+.hero-copy {
+  position: absolute; left: 50%; bottom: 7svh; z-index: 4; width: min(640px, 92vw);
+  transform: translateX(-50%); text-align: center; color: var(--cream);
+  opacity: 0; pointer-events: none;
+}
+.hero-copy.live { pointer-events: auto; }
+.hero-copy h1 { font-size: clamp(2rem, 5vw, 3.4rem); margin-bottom: .3em; }
+.hero-copy p { margin: 0 auto 1.4rem; max-width: 34em; opacity: .85; }
+.hero-actions { display: flex; gap: .8rem; justify-content: center; flex-wrap: wrap; }
+
+.scroll-hint {
+  position: absolute; left: 50%; bottom: 5svh; z-index: 4; transform: translateX(-50%);
+  color: var(--cream); text-align: center; font-size: .8rem; letter-spacing: .25em; text-transform: uppercase;
+}
+.scroll-hint i {
+  display: block; width: 22px; height: 36px; margin: .8rem auto 0;
+  border: 2px solid rgba(244,235,221,.7); border-radius: 12px; position: relative;
+}
+.scroll-hint i::after {
+  content: ""; position: absolute; left: 50%; top: 6px; width: 4px; height: 8px; margin-left: -2px;
+  border-radius: 2px; background: var(--cream); animation: wheel 1.8s infinite;
+}
+@keyframes wheel { 0% { opacity: 0; transform: translateY(0); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(12px); } }
+
