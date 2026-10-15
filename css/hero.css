@@ -1,5 +1,5 @@
 /* ---------- Hero: 3D drone shot ---------- */
-.hero { position: relative; height: 520vh; background: var(--navy); }
+.hero { position: relative; height: 300vh; background: var(--navy); }
 .hero-sticky {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   background: radial-gradient(ellipse at 70% 60%, #f3b97a 0%, #6d7f8c 35%, #123247 75%);
@@ -69,7 +69,7 @@
   display: flex; justify-content: center; gap: clamp(.15rem, 1.2vw, .6rem);
   font-family: var(--serif); font-size: clamp(3.4rem, 13vw, 8.5rem); line-height: .9; letter-spacing: .04em;
 }
-.logo-word span { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
+.logo-word span { display: inline-block; opacity: 0; will-change: transform, opacity; }
 .logo-sub {
   display: flex; align-items: center; gap: 1rem; width: 100%; justify-content: center;
   font: 700 clamp(.7rem, 1.6vw, .95rem)/1 var(--sans); letter-spacing: .55em; text-transform: uppercase; color: var(--cream);

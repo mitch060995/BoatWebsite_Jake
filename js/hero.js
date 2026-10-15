@@ -53,7 +53,9 @@ if (renderer) init();
 
 function init() {
   const mobile = Math.min(window.innerWidth, window.innerHeight) < 700;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.5 : 2));
+  // Start a little under native resolution; drop further if frames run slow (see frame())
+  let pixelRatio = Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5);
+  renderer.setPixelRatio(pixelRatio);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 0.72;
 
@@ -73,8 +75,8 @@ function init() {
   su.sunPosition.value.copy(sun);
 
   const water = new Water(new THREE.PlaneGeometry(10000, 10000), {
-    textureWidth: mobile ? 256 : 512,
-    textureHeight: mobile ? 256 : 512,
+    textureWidth: mobile ? 256 : 384,
+    textureHeight: mobile ? 256 : 384,
     waterNormals: makeWaterNormals(256),
     sunDirection: sun.clone(),
     sunColor: 0xfff1dc,
@@ -146,7 +148,7 @@ function init() {
 
   function update(dt, p) {
     time += dt;
-    ps += (p - ps) * (1 - Math.exp(-dt * 6));     // buttery scroll smoothing
+    ps += (p - ps) * (1 - Math.exp(-dt * 3.2));   // glide after the scroll rather than snapping to it
     intro = Math.min(1, intro + dt / 2.2);          // camera settles in on load
 
     const s = smooth(0, T.orbitEnd, ps);
@@ -194,11 +196,22 @@ function init() {
   }
 
   /* ---------------- loop ---------------- */
-  let last = performance.now();
+  let last = performance.now(), slow = 0;
   function frame(now) {
-    const dt = Math.min((now - last) / 1000, 0.05);
+    const raw = (now - last) / 1000;
+    const dt = Math.min(raw, 0.05);
     last = now;
-    if (hero.getBoundingClientRect().bottom > 0) update(dt, progress());
+    if (hero.getBoundingClientRect().bottom > 0) {
+      update(dt, progress());
+      // Adaptive quality: if we keep missing ~45fps, render fewer pixels
+      slow = raw > 0.022 && raw < 0.2 ? slow + 1 : Math.max(0, slow - 1);
+      if (slow > 40 && pixelRatio > 0.75) {
+        pixelRatio = Math.max(0.75, pixelRatio - 0.25);
+        renderer.setPixelRatio(pixelRatio);
+        resize();
+        slow = 0;
+      }
+    }
     requestAnimationFrame(frame);
   }
 
@@ -235,7 +248,6 @@ function overlay(ps) {
     const e = 1 - Math.pow(1 - li, 3);
     el.style.opacity = e;
     el.style.transform = `translateY(${(1 - e) * 0.45}em)`;
-    el.style.filter = e < 1 ? `blur(${(1 - e) * 12}px)` : 'none';
   });
   shadeEl.style.opacity = L * 0.85;
 
