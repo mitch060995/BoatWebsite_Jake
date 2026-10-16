@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fraser Marine Sales</title>
-  <meta name="description" content="Fraser Marine Sales — new and pre-owned boats, brokerage and trade-ins.">
+  <meta name="description" content="Fraser Marine Sales — boat brokerage and private sales, with free valuations.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -26,11 +26,11 @@
     <a class="nav-brand" href="#top" aria-label="Fraser Marine Sales — back to top">Fraser <em>Marine</em></a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span></button>
     <nav class="nav-links" id="navLinks" aria-label="Main">
-      <a href="#boats" style="--i:0">Boats</a>
-      <a href="#services" style="--i:1">Services</a>
-      <a href="#about" style="--i:2">About</a>
+      <a href="#services" style="--i:0">Services</a>
+      <a href="#sell" style="--i:1">Valuations</a>
+      <a href="#about" style="--i:2">My story</a>
       <a href="#contact" class="nav-cta" style="--i:3">Contact</a>
-      <p class="nav-menu-note" style="--i:4">Buy · Sell · Trade · Sea trials</p>
+      <p class="nav-menu-note" style="--i:4">Brokerage · Sales · Valuations</p>
     </nav>
   </header>
 
@@ -63,11 +63,11 @@
       </div>
 
       <div class="hero-copy" id="heroCopy">
-        <h1>Find your <em>next</em> boat.</h1>
-        <p>New &amp; pre-owned boats, brokerage and trade-ins, with straight answers from people who know the water.</p>
+        <h1>Selling a boat? <em>Start</em> here.</h1>
+        <p>Boat brokerage and private sales, with straight answers from someone who grew up around boats.</p>
         <div class="hero-actions">
-          <a href="#boats" class="btn btn-gold">Browse boats</a>
-          <a href="#sell" class="btn btn-ghost">Sell your boat</a>
+          <a href="#sell" class="btn btn-gold">Sell your boat</a>
+          <a href="#contact" class="btn btn-ghost">Get in touch</a>
         </div>
       </div>
 
@@ -81,80 +81,63 @@
   <main>
     <section class="intro">
       <p class="eyebrow reveal">Fraser Marine Sales</p>
-      <h2 data-split>Boats bought, sold and traded with an <em class="shine">honest handshake.</em></h2>
-      <p class="intro-lede reveal" style="--d:.35s">Whether you're after your first runabout or stepping up to a cruiser, we'll help you find the right boat, get a fair price for the one you've got, and get you out on the water sooner.</p>
+      <h2 data-split>Boats bought and sold with an <em class="shine">honest handshake.</em></h2>
+      <p class="intro-lede reveal" style="--d:.35s">Whether you're selling the boat you've had for years or looking at one I've got for sale, I'll give you an honest price, deal with you directly, and take care of the details in between.</p>
       <ul class="stats" id="stats">
-        <li class="stat reveal" style="--d:.1s"><span class="stat-num"><span data-count="100">100</span><small>%</small></span><span class="stat-label">of boats inspected before they're listed</span></li>
-        <li class="stat reveal" style="--d:.2s"><span class="stat-num"><span data-count="4">4</span></span><span class="stat-label">ways to deal: buy, sell, trade or trial</span></li>
+        <li class="stat reveal" style="--d:.1s"><span class="stat-num"><span data-count="1">1</span></span><span class="stat-label">person handling your sale, start to finish</span></li>
+        <li class="stat reveal" style="--d:.2s"><span class="stat-num"><small>$</small><span data-count="0" data-from="250">0</span></span><span class="stat-label">for a valuation</span></li>
         <li class="stat reveal" style="--d:.3s"><span class="stat-num"><span data-count="0" data-from="12">0</span></span><span class="stat-label">pushy sales pitches</span></li>
-        <li class="stat reveal" style="--d:.4s"><span class="stat-num"><span data-count="1">1</span></span><span class="stat-label">honest handshake to seal it</span></li>
       </ul>
     </section>
 
     <div class="marquee" aria-hidden="true">
       <div class="marquee-track" id="marqueeTrack">
         <div class="marquee-group">
-          <span>Bowriders</span><i>✦</i><span class="o">Fishing</span><i>✦</i><span>Cruisers</span><i>✦</i><span class="o">Pontoons</span><i>✦</i><span>Trade-ins</span><i>✦</i><span class="o">Sea trials</span><i>✦</i><span>Brokerage</span><i>✦</i><span class="o">Valuations</span><i>✦</i>
+          <span>Brokerage</span><i>✦</i><span class="o">Private sales</span><i>✦</i><span>Valuations</span><i>✦</i><span class="o">Sea trials</span><i>✦</i><span>Marketing</span><i>✦</i><span class="o">Paperwork handled</span><i>✦</i>
         </div>
       </div>
     </div>
 
-    <div class="wave" data-wave style="--from:var(--sand);--to:var(--cream)" aria-hidden="true"></div>
-
-    <section class="boats" id="boats">
-      <div class="section-head">
-        <p class="eyebrow reveal">In stock</p>
-        <h2 data-split>Featured <em class="it">boats</em></h2>
-      </div>
-      <div class="filters reveal" style="--d:.2s" id="filters" role="group" aria-label="Filter boats by type">
-        <button class="chip active" data-filter="all" aria-pressed="true">All</button>
-        <button class="chip" data-filter="Bowrider" aria-pressed="false">Bowriders</button>
-        <button class="chip" data-filter="Fishing" aria-pressed="false">Fishing</button>
-        <button class="chip" data-filter="Cruiser" aria-pressed="false">Cruisers</button>
-        <button class="chip" data-filter="Pontoon" aria-pressed="false">Pontoons</button>
-      </div>
-      <div class="boat-grid" id="boatGrid"></div>
-    </section>
-
-    <div class="wave" data-wave style="--from:var(--cream);--to:var(--navy)" aria-hidden="true"></div>
+    <div class="wave" data-wave style="--from:var(--sand);--to:var(--navy)" aria-hidden="true"></div>
 
     <section class="services" id="services">
       <div class="section-head">
-        <p class="eyebrow reveal">What we do</p>
+        <p class="eyebrow reveal">What I do</p>
         <h2 data-split>Everything from the first look to the first <em class="it">launch</em></h2>
       </div>
       <div class="service-grid">
         <article class="service reveal" style="--d:0s">
           <div class="service-inner" data-glow>
             <span class="service-num" aria-hidden="true">01</span>
-            <svg class="icon icon-buy" viewBox="0 0 48 48" aria-hidden="true">
-              <g class="i-bob"><path pathLength="1" d="M5 29 L43 27 L37.5 37 L11.5 37 Z"/><path pathLength="1" d="M15 28.5 L20.5 19.5 L33 19.5 L37 27.5"/><path pathLength="1" d="M27 19.5 V11 L33 14 L27 16"/></g>
-              <g class="i-slide"><path pathLength="1" d="M-16 43 q4 -3 8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0"/></g>
-            </svg>
-            <h3>Buy</h3>
-            <p>Hand-picked new and pre-owned boats, inspected and ready for sea trials.</p>
-          </div>
-        </article>
-        <article class="service reveal" style="--d:.12s">
-          <div class="service-inner" data-glow>
-            <span class="service-num" aria-hidden="true">02</span>
             <svg class="icon icon-sell" viewBox="0 0 48 48" aria-hidden="true">
               <path pathLength="1" d="M4 6 Q20 3 33 13"/>
               <g class="i-swing"><path pathLength="1" d="M26 8 H41 V23 L23.5 40.5 Q22 42 20.5 40.5 L8.5 28.5 Q7 27 8.5 25.5 Z"/><circle pathLength="1" cx="34" cy="15" r="2.6"/><path pathLength="1" d="M15 27 L22 34 M19 23 L26 30"/></g>
             </svg>
             <h3>Sell &amp; brokerage</h3>
-            <p>We market, show and close the sale for you — photos, listings and paperwork included.</p>
+            <p>I market, show and close the sale for you, with photos, advertising, enquiries and paperwork all handled.</p>
+          </div>
+        </article>
+        <article class="service reveal" style="--d:.12s">
+          <div class="service-inner" data-glow>
+            <span class="service-num" aria-hidden="true">02</span>
+            <svg class="icon icon-value" viewBox="0 0 48 48" aria-hidden="true">
+              <path pathLength="1" d="M13 8 H35 Q38 8 38 11 V41 Q38 44 35 44 H13 Q10 44 10 41 V11 Q10 8 13 8 Z"/>
+              <path pathLength="1" d="M18 5 H30 V11 H18 Z"/>
+              <g class="i-bob"><path pathLength="1" d="M16 22 L19.5 25.5 L25 19 M16 34 L19.5 37.5 L25 31 M28 23 H33 M28 35 H33"/></g>
+            </svg>
+            <h3>Free valuations</h3>
+            <p>A no-obligation price for your boat, based on its condition and what similar boats are actually selling for.</p>
           </div>
         </article>
         <article class="service reveal" style="--d:.24s">
           <div class="service-inner" data-glow>
             <span class="service-num" aria-hidden="true">03</span>
-            <svg class="icon icon-trade" viewBox="0 0 48 48" aria-hidden="true">
-              <g class="i-right"><path pathLength="1" d="M9 17 H37 M31 11 L37 17 L31 23"/></g>
-              <g class="i-left"><path pathLength="1" d="M39 31 H11 M17 25 L11 31 L17 37"/></g>
+            <svg class="icon icon-buy" viewBox="0 0 48 48" aria-hidden="true">
+              <g class="i-bob"><path pathLength="1" d="M5 29 L43 27 L37.5 37 L11.5 37 Z"/><path pathLength="1" d="M15 28.5 L20.5 19.5 L33 19.5 L37 27.5"/><path pathLength="1" d="M27 19.5 V11 L33 14 L27 16"/></g>
+              <g class="i-slide"><path pathLength="1" d="M-16 43 q4 -3 8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0 t8 0"/></g>
             </svg>
-            <h3>Trade-ins</h3>
-            <p>Bring your current boat in and roll its value straight into the next one.</p>
+            <h3>Buying through me</h3>
+            <p>Interested in a boat I'm selling? Ask me anything. You'll get straight answers and a proper look over it.</p>
           </div>
         </article>
         <article class="service reveal" style="--d:.36s">
@@ -164,7 +147,7 @@
               <g class="i-helm"><circle pathLength="1" cx="24" cy="24" r="13"/><circle pathLength="1" cx="24" cy="24" r="4"/><path pathLength="1" d="M24 4 V20 M24 28 V44 M4 24 H20 M28 24 H44 M10 10 L21.2 21.2 M26.8 26.8 L38 38 M38 10 L26.8 21.2 M21.2 26.8 L10 38"/></g>
             </svg>
             <h3>Sea trials</h3>
-            <p>Take it out before you sign. We'll get you on the water so you can feel the difference.</p>
+            <p>Take it out before you sign. I'll get you on the water so you can feel how it runs.</p>
           </div>
         </article>
       </div>
@@ -195,7 +178,7 @@
         <div>
           <p class="eyebrow reveal">Selling?</p>
           <h2 data-split>Get a free valuation on your <em class="it">boat.</em></h2>
-          <p class="reveal" style="--d:.3s">Send us a few details and photos — we'll come back with a fair, no-pressure offer or a brokerage plan.</p>
+          <p class="reveal" style="--d:.3s">Send me a few details and photos. I'll come back with a fair, no-pressure valuation and a plan to sell it.</p>
         </div>
         <div class="magnet-zone reveal" style="--d:.45s">
           <a href="#contact" class="btn btn-gold btn-lg" data-magnetic><span class="btn-label">Get my valuation <span class="btn-arrow" aria-hidden="true">→</span></span></a>
@@ -208,13 +191,14 @@
     <section class="about" id="about">
       <div class="about-grid">
         <div class="about-text">
-          <p class="eyebrow reveal">About Fraser Marine</p>
-          <h2 data-split>Boat buying, done <em class="it">properly.</em></h2>
-          <p class="reveal" style="--d:.3s">At Fraser Marine Sales, buying a boat should feel as good as owning one. No pushy sales, no surprises — just straight answers, fair numbers and boats we'd be happy to take out ourselves.</p>
+          <p class="eyebrow reveal">My story</p>
+          <h2 data-split>Boats run in the <em class="it">family.</em></h2>
+          <p class="reveal" style="--d:.3s">My granddad built boats. He shaped them by hand, and he cared about how every one of them sat and ran on the water.</p>
+          <p class="reveal" style="--d:.4s">That passion was passed down, and it never left me. Today I put it into selling boats: finding each one the right owner, and handling every sale the way he would have, honestly and properly.</p>
           <ul class="ticks">
-            <li class="reveal" style="--d:.4s">Every boat inspected before it's listed</li>
-            <li class="reveal" style="--d:.5s">Clear pricing and full history where available</li>
-            <li class="reveal" style="--d:.6s">Help with finance, insurance and registration</li>
+            <li class="reveal" style="--d:.5s">Honest advice on price and condition</li>
+            <li class="reveal" style="--d:.6s">You deal with me directly, from first call to handover</li>
+            <li class="reveal" style="--d:.7s">The paperwork handled for you</li>
           </ul>
         </div>
         <div class="about-visual reveal" style="--d:.15s" aria-hidden="true">
@@ -293,7 +277,7 @@
               <defs><path id="stampPath" d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"/></defs>
               <circle class="stamp-bg" cx="100" cy="100" r="98"/>
               <g class="stamp-ring">
-                <text class="stamp-text"><textPath href="#stampPath" textLength="470" lengthAdjust="spacing">BUY · SELL · TRADE · FRASER MARINE ·</textPath></text>
+                <text class="stamp-text"><textPath href="#stampPath" textLength="470" lengthAdjust="spacing">BROKERAGE · SALES · FRASER MARINE ·</textPath></text>
               </g>
               <circle cx="100" cy="100" r="58" fill="none" stroke="#e0aa5a" stroke-width="1.5"/>
               <text class="stamp-mono" x="100" y="116" text-anchor="middle">F</text>
@@ -311,7 +295,7 @@
         <div>
           <p class="eyebrow reveal">Get in touch</p>
           <h2 data-split>Let's talk <em class="it">boats.</em></h2>
-          <p class="reveal" style="--d:.3s">Questions about a listing, a trade-in or a valuation? Drop us a message and we'll get back to you.</p>
+          <p class="reveal" style="--d:.3s">Selling a boat, after a valuation, or interested in a boat I've got for sale? Send me a message and I'll get back to you.</p>
           <dl class="contact-list reveal" style="--d:.45s">
             <dt>Phone</dt><dd><a href="tel:+0000000000">(000) 000-0000</a></dd>
             <dt>Email</dt><dd><a href="mailto:hello@example.com">hello@example.com</a></dd>
@@ -329,9 +313,9 @@
           </div>
           <div class="field field-select">
             <select id="f-topic" name="topic">
-              <option>Buying a boat</option>
               <option>Selling my boat</option>
-              <option>A trade-in</option>
+              <option>A free valuation</option>
+              <option>A boat you're selling</option>
               <option>Something else</option>
             </select>
             <label for="f-topic">I'm interested in</label>
@@ -357,7 +341,7 @@
     <div class="footer-bottom">
       <span class="nav-brand">Fraser <em>Marine</em> Sales</span>
       <nav class="footer-links" aria-label="Footer">
-        <a href="#boats">Boats</a><a href="#services">Services</a><a href="#sell">Sell</a><a href="#about">About</a><a href="#contact">Contact</a>
+        <a href="#services">Services</a><a href="#sell">Valuations</a><a href="#about">My story</a><a href="#contact">Contact</a>
       </nav>
       <span>© <span id="year"></span> Fraser Marine Sales</span>
     </div>

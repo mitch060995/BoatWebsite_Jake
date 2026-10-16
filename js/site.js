@@ -30,104 +30,6 @@
   if (!reduced) requestAnimationFrame(frame);
 
   /* ---------------------------------------------------------
-     Inventory (example listings — replace with real stock)
-     --------------------------------------------------------- */
-  const boats = [
-    { name: 'Coastline 23', type: 'Bowrider', year: 2021, len: "23'", hp: '250hp', price: '$68,500', hull: '#ffffff', stripe: '#0f4c6e', sky: ['#bfe3f2', '#f7efe0'] },
-    { name: 'Reef Hunter 21', type: 'Fishing', year: 2019, len: "21'", hp: '150hp', price: '$42,900', hull: '#e9eef1', stripe: '#c0392b', sky: ['#cfe7ef', '#eef3ef'] },
-    { name: 'Harbour Cruiser 30', type: 'Cruiser', year: 2018, len: "30'", hp: 'Twin 300hp', price: '$139,000', hull: '#f7f3ea', stripe: '#0b1b26', sky: ['#f4d6b0', '#f7ece0'] },
-    { name: 'Lazy Days 24', type: 'Pontoon', year: 2022, len: "24'", hp: '115hp', price: '$54,750', hull: '#d9dee2', stripe: '#e0aa5a', sky: ['#c7e4ee', '#f2efe6'] },
-    { name: 'Wakeline 20', type: 'Bowrider', year: 2020, len: "20'", hp: '200hp', price: '$39,900', hull: '#ffffff', stripe: '#e0aa5a', sky: ['#d8eef5', '#fbf3e6'] },
-    { name: 'Offshore 26 CC', type: 'Fishing', year: 2023, len: "26'", hp: 'Twin 200hp', price: '$118,000', hull: '#eef2f4', stripe: '#0f4c6e', sky: ['#bcdcea', '#ecf1ee'] },
-  ];
-
-  // Wavy water surface from x=-60 to x=360 (period 60) so it can drift seamlessly by 60 units
-  const surface = (y, amp) => {
-    let d = `M-60 ${y} q15 -${amp} 30 0`;
-    for (let x = -30; x < 360; x += 30) d += ' t30 0';
-    return d;
-  };
-
-  function art(b, i) {
-    const cabin = b.type === 'Cruiser'
-      ? `<path d="M70 66 L100 38 L200 38 L222 64 Z" fill="${b.hull}"/><path d="M106 44 L196 44 L210 60 L92 60 Z" fill="#1b3442"/><rect x="120" y="26" width="60" height="12" rx="3" fill="${b.hull}"/>`
-      : b.type === 'Pontoon'
-      ? `<rect x="60" y="48" width="180" height="20" rx="4" fill="${b.hull}"/><path d="M70 48 V30 H230 V48" fill="none" stroke="#5b6b75" stroke-width="3"/><rect x="66" y="22" width="170" height="8" rx="3" fill="${b.stripe}"/>`
-      : b.type === 'Fishing'
-      ? `<path d="M120 66 L132 40 L172 40 L178 66 Z" fill="${b.hull}"/><path d="M136 44 L168 44 L172 56 L132 56 Z" fill="#1b3442"/><path d="M130 40 V18 H176 V40" fill="none" stroke="#5b6b75" stroke-width="2.5"/><rect x="128" y="14" width="52" height="6" rx="2" fill="${b.stripe}"/>`
-      : `<path d="M110 66 L132 46 L176 46 L186 66 Z" fill="#1b3442" opacity=".85"/>`;
-    const hull = b.type === 'Pontoon'
-      ? `<rect x="54" y="68" width="200" height="14" rx="7" fill="#c9d1d6"/><rect x="54" y="82" width="200" height="6" rx="3" fill="#9aa8b1"/>`
-      : `<path d="M30 64 L262 58 Q284 58 276 72 L246 96 Q240 101 230 101 L62 101 Q42 101 34 90 Z" fill="${b.hull}"/><path d="M36 76 L272 68" stroke="${b.stripe}" stroke-width="5"/>`;
-    const dy = b.type === 'Pontoon' ? 27 : 18;
-    return `
-      <svg viewBox="0 0 300 188" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="--n:${i}">
-        <defs><linearGradient id="s${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${b.sky[0]}"/><stop offset="1" stop-color="${b.sky[1]}"/></linearGradient></defs>
-        <rect width="300" height="188" fill="url(#s${i})"/>
-        <circle cx="250" cy="38" r="14" fill="#fff6e4" opacity=".7"/>
-        <rect y="116" width="300" height="72" fill="#1d6a8c"/>
-        <path class="drift" d="${surface(112, 5)} V188 H-60 Z" fill="#2c81a5"/>
-        <g transform="translate(0 ${dy})"><g class="card-sail"><g class="card-boat">${cabin}${hull}</g>
-          <g class="foam" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"><path d="M30 ${b.type === 'Pontoon' ? 89 : 97} h-16 M26 ${b.type === 'Pontoon' ? 93 : 101} h-22"/></g></g></g>
-        <path class="drift rev" d="${surface(117, 3)} V188 H-60 Z" fill="#1d6a8c" opacity=".88"/>
-        <path class="drift" d="${surface(130, 4)}" fill="none" stroke="#ffffff" stroke-width="2" opacity=".35"/>
-      </svg>`;
-  }
-
-  const grid = $('#boatGrid');
-  grid.innerHTML = boats.map((b, i) => `
-    <article class="card reveal" data-type="${b.type}" style="--d:${(i % 3) * 0.1}s">
-      <div class="card-inner" data-tilt>
-        <div class="card-art"><span class="tag">${b.type}</span>${art(b, i)}</div>
-        <div class="card-body">
-          <h3>${b.name}</h3>
-          <ul class="specs"><li>${b.year}</li><li>${b.len}</li><li>${b.hp}</li></ul>
-          <div class="card-foot"><span class="price">${b.price}</span><a href="#contact">Enquire <span aria-hidden="true">→</span></a></div>
-        </div>
-      </div>
-    </article>`).join('');
-
-  /* Filter chips: fade leavers out, FLIP the stayers, stagger the arrivals in */
-  let filterToken = 0;
-  function applyFilter(f) {
-    const token = ++filterToken;
-    const cards = [...grid.children];
-    const show = c => f === 'all' || c.dataset.type === f;
-    cards.forEach(c => { c.getAnimations().forEach(a => a.cancel()); c.classList.add('in'); c.style.transition = 'none'; });
-
-    if (reduced) { cards.forEach(c => { c.hidden = !show(c); }); return; }
-
-    const leaving = cards.filter(c => !c.hidden && !show(c));
-    const entering = cards.filter(c => c.hidden && show(c));
-    const out = leaving.map(c => c.animate(
-      [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'scale(.9) translateY(12px)' }],
-      { duration: 260, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' }).finished.catch(() => {}));
-
-    Promise.all(out).then(() => {
-      if (token !== filterToken) return;
-      const staying = cards.filter(c => !c.hidden && show(c));
-      const first = new Map(staying.map(c => [c, c.getBoundingClientRect()]));
-      leaving.forEach(c => { c.hidden = true; c.getAnimations().forEach(a => a.cancel()); });
-      entering.forEach(c => { c.hidden = false; });
-      staying.forEach(c => {
-        const a = first.get(c), b = c.getBoundingClientRect();
-        const dx = a.left - b.left, dy = a.top - b.top;
-        if (dx || dy) c.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }],
-          { duration: 650, easing: 'cubic-bezier(.16,1,.3,1)' });
-      });
-      entering.forEach((c, i) => c.animate(
-        [{ opacity: 0, transform: 'translateY(40px) scale(.94)' }, { opacity: 1, transform: 'none' }],
-        { duration: 700, delay: 120 + i * 90, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' }));
-    });
-  }
-  $('#filters').addEventListener('click', e => {
-    const btn = e.target.closest('.chip');
-    if (!btn || btn.classList.contains('active')) return;
-    $$('.chip').forEach(c => { const on = c === btn; c.classList.toggle('active', on); c.setAttribute('aria-pressed', on); });
-    applyFilter(btn.dataset.filter);
-  });
-
-  /* ---------------------------------------------------------
      Split headlines into masked words
      --------------------------------------------------------- */
   function split(el) {
@@ -300,21 +202,6 @@
       el.style.setProperty('--my', `${py * 100}%`);
       return [px, py];
     };
-    grid.addEventListener('pointermove', e => {
-      const el = e.target.closest('[data-tilt]');
-      if (!el) return;
-      const [px, py] = setGlow(el, e);
-      el.classList.add('tilting');
-      el.style.setProperty('--rx', `${(0.5 - py) * 9}deg`);
-      el.style.setProperty('--ry', `${(px - 0.5) * 11}deg`);
-    }, { passive: true });
-    grid.addEventListener('pointerout', e => {
-      const el = e.target.closest('[data-tilt]');
-      if (!el || el.contains(e.relatedTarget)) return;
-      el.classList.remove('tilting');
-      el.style.setProperty('--rx', '0deg');
-      el.style.setProperty('--ry', '0deg');
-    });
     $$('[data-glow]').forEach(el => el.addEventListener('pointermove', e => setGlow(el, e), { passive: true }));
 
     $$('[data-magnetic]').forEach(btn => {
@@ -411,7 +298,7 @@
   // NOTE: form isn't wired to a backend yet — hook up Formspree/Netlify Forms/etc. before launch.
   $('#contactForm').addEventListener('submit', e => {
     e.preventDefault();
-    $('#formNote').textContent = "Thanks! We'll be in touch shortly.";
+    $('#formNote').textContent = "Thanks! I'll be in touch shortly.";
     e.target.reset();
   });
 
