@@ -49,7 +49,10 @@ try {
   renderer = null;
 }
 
-if (renderer) init();
+if (renderer) {
+  const start = () => setTimeout(init, 60);   // just after the first paint
+  if (document.readyState === 'complete') start(); else window.addEventListener('load', start, { once: true });
+}
 
 function init() {
   const mobile = Math.min(window.innerWidth, window.innerHeight) < 700;
@@ -210,10 +213,15 @@ function init() {
     return;
   }
 
-  stage.classList.add('live');
-  update(0, progress());
-  stage.classList.add('ready');
-  requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
+  const go = () => {
+    stage.classList.remove('no-3d');
+    stage.classList.add('live');
+    update(0, progress());
+    stage.classList.add('ready');
+    requestAnimationFrame(t => { last = t; requestAnimationFrame(frame); });
+  };
+  if (renderer.compileAsync) renderer.compileAsync(scene, camera).then(go, go);
+  else go();
 }
 
 /* ---------------- DOM overlays (title, logo, copy) ---------------- */
@@ -265,11 +273,22 @@ function makeWaterNormals(size) {
     waves.push({ kx, ky, a: 1 / Math.pow(Math.hypot(kx, ky), 1.35), ph: rnd() * Math.PI * 2 });
   }
   const data = new Uint8Array(size * size * 4);
+  const N = waves.length, TAU = Math.PI * 2;
+  const cx = new Float32Array(N * size), sx = new Float32Array(N * size);
+  const cy = new Float32Array(N * size), sy = new Float32Array(N * size);
+  waves.forEach((w, i) => {
+    for (let t = 0; t < size; t++) {
+      const ax = (TAU * w.kx * t) / size + w.ph, ay = (TAU * w.ky * t) / size;
+      cx[i * size + t] = Math.cos(ax); sx[i * size + t] = Math.sin(ax);
+      cy[i * size + t] = Math.cos(ay); sy[i * size + t] = Math.sin(ay);
+    }
+  });
   for (let y = 0; y < size; y++) {
     for (let x = 0; x < size; x++) {
       let dx = 0, dy = 0;
-      for (const w of waves) {
-        const c = Math.cos((Math.PI * 2 * (w.kx * x + w.ky * y)) / size + w.ph) * w.a;
+      for (let i = 0; i < N; i++) {
+        const w = waves[i], a = i * size + x, b = i * size + y;
+        const c = (cx[a] * cy[b] - sx[a] * sy[b]) * w.a;
         dx += c * w.kx; dy += c * w.ky;
       }
       const nx = -dx * 0.075, ny = -dy * 0.075, l = Math.hypot(nx, ny, 1);
