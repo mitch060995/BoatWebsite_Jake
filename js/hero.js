@@ -290,11 +290,11 @@ function makeWaterNormals(size) {
 }
 
 /* =========================================================
-   The boat: a Fraser 737 — a 7.37 m West Australian hardtop
-   cabin boat. White deep-V hull, navy rub strip, blue
-   pinstripes and the blue swoosh down the hardtop pillar,
-   forward cabin, raked windscreen, canvas extension aft,
-   sterndrive with a swim platform.
+   The boat: a Fraser 737 sports cruiser — a 7.37 m West
+   Australian cabin boat. White deep-V hull, dark rub strake,
+   blue pinstripes, solid side wings carrying the blue swoosh,
+   wrap-around windscreen under a cream canvas bimini,
+   forward cabin with grab rails, sterndrive and swim platform.
    Bow points +x, starboard is +z, waterline ≈ y 0.2.
    ========================================================= */
 function buildBoat() {
@@ -308,7 +308,7 @@ function buildBoat() {
     deck: new THREE.MeshStandardMaterial({ color: 0xe6e7e3, roughness: 0.6, side: THREE.DoubleSide }),
     chrome: new THREE.MeshStandardMaterial({ color: 0xe8ecef, metalness: 1, roughness: 0.12 }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0x3b5562, roughness: 0.02, metalness: 0.5, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
-    canvas: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.85, side: THREE.DoubleSide }),
+    canvas: new THREE.MeshStandardMaterial({ color: 0xe9e2cf, roughness: 0.9, side: THREE.DoubleSide }),
     cushion: new THREE.MeshStandardMaterial({ color: 0xece6da, roughness: 0.9 }),
     dark: new THREE.MeshStandardMaterial({ color: 0x2a3036, roughness: 0.5, metalness: 0.3 }),
   };
@@ -405,8 +405,9 @@ function buildBoat() {
     }
   };
   const sh = u => prof(u).sheer;
-  bandAt(u => sh(u) - 0.13, u => sh(u) - 0.03, M.navy, 0, 0.985);
-  bandAt(u => sh(u) - 0.2, u => sh(u) - 0.17, M.blue, 0, 0.95);
+  bandAt(u => sh(u) - 0.08, u => sh(u) - 0.02, M.navy, 0, 0.985);          // rub strake
+  bandAt(u => sh(u) - 0.15, u => sh(u) - 0.125, M.blue, 0, 0.95);        // pinstripe under it
+  bandAt(u => sh(u) - 0.52, u => sh(u) - 0.495, M.blue, 0, 0.47, 30);    // mid-hull line aft of the swoosh
   const boot = u => Math.min(Math.max(0.4, section(u)[4][1] + 0.08), sh(u) - 0.35);
   bandAt(u => boot(u), u => boot(u) + 0.035, M.blue, 0, 0.9);
 
@@ -470,75 +471,95 @@ function buildBoat() {
     }, M.glass);
   }
 
-  // ---- Hardtop wheelhouse
-  const uWs = 0.6, uWt = 0.535, uRoofBack = 0.33;
-  const roofY = sh(0.5) + 1.3;
+  // ---- Sports-cruiser top: wrap-around windscreen, solid side wings, canvas bimini
+  const uWs = 0.6, uWt = 0.57;
+  const roofY = sh(0.45) + 1.32;           // bimini height
   const wsBottom = cabH(uWs);
+  const wsTop = roofY - 0.42;
   const halfW = u => prof(u).hb - 0.22;
   // raked windscreen
   loft([0, 1], k => {
-    const u = lerp(uWs, uWt, k), x = xAt(u), y = lerp(wsBottom, roofY - 0.06, k), w = halfW(u) - 0.04 * k;
+    const u = lerp(uWs, uWt, k), x = xAt(u), y = lerp(wsBottom, wsTop, k), w = halfW(u) - 0.03 * k;
     return [[x, y, w], [x, y, -w]];
   }, M.glass);
-  // windscreen frame: centre mullion + side posts
-  for (const z of [-1, 0, 1]) {
-    const zz = z === 0 ? 0 : z * (halfW(uWs) - 0.02);
-    bar(xAt(uWs), wsBottom, xAt(uWt), roofY - 0.04, zz, 0.05, 0.05, z === 0 ? M.hull : M.hull);
-  }
-  // side glass between windscreen and the rear pillar
+  // side glass wrapping back to the wings
   for (const side of [1, -1]) {
-    loft(range(0.45, 0.58, 4), u => {
-      const x = xAt(u), z = side * (halfW(u) + 0.02);
-      const yLo = Math.max(sh(u) + 0.42, u > 0.585 ? wsBottom : sh(u) + 0.42);
-      return [[x, yLo, z], [x, roofY - 0.06, z]];
+    loft(range(0.5, uWs - 0.012, 4), u => {
+      const x = xAt(u), z = side * (halfW(u) + 0.01);
+      return [[x, sh(u) + 0.5, z], [x, wsTop - (u - 0.5) * 0.4, z]];
     }, M.glass);
   }
-  // roof with a dark visor underneath and grab rails on top
-  const roofX0 = xAt(uRoofBack), roofX1 = xAt(uWt) + 0.18;
-  const roofW = halfW(0.5) * 2 + 0.16;
-  add(new RoundedBoxGeometry(roofX1 - roofX0, 0.09, roofW, 3, 0.04), M.hull, (roofX0 + roofX1) / 2, roofY, 0);
-  add(new RoundedBoxGeometry(0.5, 0.02, roofW - 0.08, 2, 0.008), M.navy, roofX1 - 0.3, roofY - 0.055, 0);
-  for (const side of [1, -1]) {
-    const z = side * (roofW / 2 - 0.12);
+  // windscreen frame: white posts, chrome grab rail along the top
+  for (const z of [-1, 1]) bar(xAt(uWs), wsBottom, xAt(uWt), wsTop, z * (halfW(uWs) - 0.02), 0.05, 0.05, M.hull);
+  {
     const pts = [
-      new THREE.Vector3(roofX0 + 0.25, roofY + 0.04, z), new THREE.Vector3(roofX0 + 0.3, roofY + 0.14, z),
-      new THREE.Vector3(roofX1 - 0.35, roofY + 0.14, z), new THREE.Vector3(roofX1 - 0.3, roofY + 0.04, z),
+      new THREE.Vector3(xAt(0.5), wsTop + 0.04, halfW(0.5) + 0.01),
+      new THREE.Vector3(xAt(uWt) - 0.05, wsTop + 0.06, halfW(uWt) - 0.04),
+      new THREE.Vector3(xAt(uWt), wsTop + 0.07, 0),
+      new THREE.Vector3(xAt(uWt) - 0.05, wsTop + 0.06, -(halfW(uWt) - 0.04)),
+      new THREE.Vector3(xAt(0.5), wsTop + 0.04, -(halfW(0.5) + 0.01)),
     ];
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.1), 40, 0.018, 8), M.chrome));
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, 0.018, 8), M.chrome));
   }
-  // antenna, raked back
-  add(new THREE.CylinderGeometry(0.008, 0.014, 1.5, 6), M.hull, roofX0 + 0.25, roofY + 0.75, -(roofW / 2 - 0.2), 0, 0, 0.35);
 
-  // rear pillars: solid, slanting forward to the gunwale, with the blue swoosh
-  const pTop = [xAt(uRoofBack) + 0.12, roofY - 0.04], pFoot = [xAt(0.43), sh(0.43) + 0.02];
+  // solid side wings: a slanted parallelogram from the gunwale up to the bimini, blue double stripe on the outside
+  const wing = { baseF: 0.5, baseR: 0.39, topF: 0.43, topR: 0.32 };
   for (const side of [1, -1]) {
-    const z = side * (halfW(0.4) + 0.02);
-    bar(pTop[0], pTop[1], pFoot[0], pFoot[1], z, 0.26, 0.05, M.hull);
-    // two blue bands along the pillar's outer face, carrying on down the hull side
-    const off = side * 0.03;
-    bar(pTop[0] + 0.02, pTop[1] - 0.06, pFoot[0] + 0.05, pFoot[1], z + off, 0.08, 0.012, M.blue);
-    bar(pTop[0] - 0.07, pTop[1] - 0.06, pFoot[0] - 0.04, pFoot[1], z + off, 0.03, 0.012, M.blue);
+    const z = side * (halfW(0.45) + 0.02);
+    const shape = new THREE.Shape([
+      new THREE.Vector2(xAt(wing.baseR), sh(wing.baseR)),
+      new THREE.Vector2(xAt(wing.baseF), sh(wing.baseF)),
+      new THREE.Vector2(xAt(wing.topF), roofY - 0.03),
+      new THREE.Vector2(xAt(wing.topR), roofY - 0.03),
+    ]);
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.07, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.015, bevelSegments: 2 });
+    geo.translate(0, 0, -0.035);
+    add(geo, M.hull, 0, 0, z);
+    // stripes: a broad band and a thin one, running down parallel to the wing's slant
+    const zf = z + side * 0.055;
+    const t0 = [xAt(wing.topR) + 0.32, roofY - 0.08], b0 = [xAt(wing.baseR) + 0.32, sh(wing.baseR) + 0.02];
+    bar(t0[0], t0[1], b0[0], b0[1], zf, 0.11, 0.01, M.blue);
+    bar(t0[0] + 0.17, t0[1], b0[0] + 0.17, b0[1], zf, 0.035, 0.01, M.blue);
   }
-  bandAt(u => sh(u) - 0.17, u => sh(u) - 0.08, M.blue, 0.4, 0.46, 4);
+  // the broad stripe carries on down the hull side, angled, to meet the pinstripe
+  for (const side of [1, -1]) {
+    const uA = (xAt(wing.baseR) + 0.32 - X0) / LEN, uB = uA + 0.035;
+    const yA = sh(uA) - 0.05, yB = sh(uB) - 0.5;
+    const z = side * (prof(lerp(uA, uB, 0.5)).hb + 0.02);
+    bar(xAt(uA), yA, xAt(uB), yB, z, 0.11, 0.01, M.blue);
+    bar(xAt(uA) + 0.17, yA, xAt(uB) + 0.17, yB + 0.03, z, 0.035, 0.01, M.blue);
+  }
+
+  // cream canvas bimini from the wings forward over the windscreen, with a stainless front bow
+  const biW = halfW(0.45) + 0.08;
+  loft(range(0, 1, 8), k => {
+    const u = lerp(wing.topR - 0.005, uWt + 0.012, k), x = xAt(u), y = roofY + 0.02 - k * 0.07;
+    const sag = Math.sin(k * Math.PI * 4) * 0.012;      // canvas between the bows
+    return [[x, y - 0.04, biW], [x, y + 0.05 + sag, biW * 0.5], [x, y + 0.07 + sag, 0], [x, y + 0.05 + sag, -biW * 0.5], [x, y - 0.04, -biW]];
+  }, M.canvas);
+  {
+    const xf = xAt(uWt + 0.012), yf = roofY - 0.05;
+    const pts = [new THREE.Vector3(xf, yf - 0.04, biW), new THREE.Vector3(xf + 0.02, yf + 0.06, 0), new THREE.Vector3(xf, yf - 0.04, -biW)];
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.016, 8), M.chrome));
+    for (const side of [1, -1]) bar(xf - 0.02, yf - 0.04, xAt(uWt) + 0.05, wsTop + 0.06, side * (biW - 0.06), 0.02, 0.02, M.chrome);
+  }
 
   // helm: dash under the windscreen, seats
-  add(new RoundedBoxGeometry(0.42, 0.18, halfW(0.58) * 2 - 0.1, 2, 0.04), M.dark, xAt(0.575), wsBottom - 0.1, 0);
+  add(new RoundedBoxGeometry(0.42, 0.16, halfW(0.58) * 2 - 0.2, 2, 0.04), M.deck, xAt(0.575), wsBottom - 0.12, 0);
   for (const z of [-0.5, 0.5]) {
     add(new RoundedBoxGeometry(0.5, 0.42, 0.5, 3, 0.06), M.deck, xAt(0.5), sh(0.5) - SOLE + 0.21, z);
     add(new RoundedBoxGeometry(0.5, 0.12, 0.5, 3, 0.05), M.cushion, xAt(0.5), sh(0.5) - SOLE + 0.48, z);
     add(new RoundedBoxGeometry(0.1, 0.45, 0.46, 3, 0.04), M.cushion, xAt(0.5) - 0.24, sh(0.5) - SOLE + 0.75, z);
   }
 
-  // canvas extension aft of the hardtop on two stainless bows
-  const uCan = 0.1;
-  loft([0, 1], k => {
-    const u = lerp(uRoofBack + 0.02, uCan, k), x = xAt(u), y = roofY - 0.04 - k * 0.12, w = roofW / 2 - 0.06 - k * 0.05;
-    return [[x, y, w], [x, y + 0.04, 0], [x, y, -w]];
-  }, M.canvas);
+  // stainless grab rails along the cabin top, and an anchor bowsprit
   for (const side of [1, -1]) {
-    const z = side * (roofW / 2 - 0.12);
-    bar(xAt(uCan), roofY - 0.17, xAt(uCan) - 0.05, sh(uCan), z, 0.035, 0.035, M.chrome);
+    const us = range(0.62, 0.84, 6);
+    const pts = us.map(u => new THREE.Vector3(xAt(u), cabH(u) + 0.1, side * (cabW(u) - 0.06)));
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.015, 8), M.chrome));
+    for (const u of [0.63, 0.73, 0.83]) add(new THREE.CylinderGeometry(0.012, 0.012, 0.1, 6), M.chrome, xAt(u), cabH(u) + 0.05, side * (cabW(u) - 0.06));
   }
+  add(new RoundedBoxGeometry(0.55, 0.06, 0.16, 2, 0.02), M.chrome, xAt(1) + 0.18, sh(1) - 0.02, 0);
 
   // rear lounge / engine box, transom door side
   {
@@ -562,7 +583,7 @@ function buildBoat() {
   }
 
   // sterndrive: swim platform on the transom, leg under the water
-  add(new RoundedBoxGeometry(0.6, 0.07, 2.1, 2, 0.03), M.dark, X0 - 0.3, 0.36, 0);
+  add(new RoundedBoxGeometry(0.55, 0.07, 2.1, 2, 0.03), M.deck, X0 - 0.27, 0.36, 0);
   add(new RoundedBoxGeometry(0.34, 0.6, 0.22, 2, 0.06), M.dark, X0 - 0.2, 0.02, 0);
   for (const side of [1, -1]) {
     bar(X0 - 0.55, 0.39, X0 - 0.55, 0.78, side * 0.95, 0.025, 0.025, M.chrome);
