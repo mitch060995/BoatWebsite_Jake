@@ -290,11 +290,12 @@ function makeWaterNormals(size) {
 }
 
 /* =========================================================
-   The boat: a Fraser 737 sports cruiser — a 7.37 m West
+   The boat: a Fraser 737 (Targa 737) hardtop — a 7.37 m West
    Australian cabin boat. White deep-V hull, dark rub strake,
    blue pinstripes, solid side wings carrying the blue swoosh,
-   wrap-around windscreen under a cream canvas bimini,
-   forward cabin with grab rails, sterndrive and swim platform.
+   raked tinted windscreen under a white hardtop with solar
+   panel, canvas extension aft, forward cabin with grab rails,
+   sterndrive and swim platform.
    Bow points +x, starboard is +z, waterline ≈ y 0.2.
    ========================================================= */
 function buildBoat() {
@@ -308,7 +309,13 @@ function buildBoat() {
     deck: new THREE.MeshStandardMaterial({ color: 0xe6e7e3, roughness: 0.6, side: THREE.DoubleSide }),
     chrome: new THREE.MeshStandardMaterial({ color: 0xe8ecef, metalness: 1, roughness: 0.12 }),
     glass: new THREE.MeshPhysicalMaterial({ color: 0x3b5562, roughness: 0.02, metalness: 0.5, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
-    canvas: new THREE.MeshStandardMaterial({ color: 0xe9e2cf, roughness: 0.9, side: THREE.DoubleSide }),
+    canvas: new THREE.MeshStandardMaterial({ color: 0xece8dc, roughness: 0.9, side: THREE.DoubleSide }),
+    beige: new THREE.MeshStandardMaterial({ color: 0xd8ccb2, roughness: 0.85 }),
+    solar: new THREE.MeshStandardMaterial({ color: 0x1a2230, roughness: 0.25, metalness: 0.6 }),
+    sole: new THREE.MeshStandardMaterial({ color: 0x3a3d40, roughness: 0.95, side: THREE.DoubleSide }),
+    seat: new THREE.MeshStandardMaterial({ color: 0x4e6d86, roughness: 0.6 }),
+    esky: new THREE.MeshStandardMaterial({ color: 0xc6a77e, roughness: 0.7 }),
+    model: modelDecal(),
     cushion: new THREE.MeshStandardMaterial({ color: 0xece6da, roughness: 0.9 }),
     dark: new THREE.MeshStandardMaterial({ color: 0x2a3036, roughness: 0.5, metalness: 0.3 }),
   };
@@ -436,7 +443,7 @@ function buildBoat() {
   loft(CK, u => {
     const { hb, sheer } = prof(u), x = xAt(u), z = hb - W_IN;
     return [[x, sheer - SOLE, z], [x, sheer - SOLE, -z]];
-  }, M.deck);
+  }, M.sole);
   {
     const { hb, sheer } = prof(0.03), z = hb - W_IN;
     const geo = new THREE.PlaneGeometry(z * 2, SOLE);
@@ -471,11 +478,11 @@ function buildBoat() {
     }, M.glass);
   }
 
-  // ---- Sports-cruiser top: wrap-around windscreen, solid side wings, canvas bimini
+  // ---- Hardtop: raked windscreen, solid side wings, white hardtop, canvas extension aft
   const uWs = 0.6, uWt = 0.57;
-  const roofY = sh(0.45) + 1.32;           // bimini height
+  const roofY = sh(0.45) + 1.36;           // hardtop height
   const wsBottom = cabH(uWs);
-  const wsTop = roofY - 0.42;
+  const wsTop = roofY - 0.06;
   const halfW = u => prof(u).hb - 0.22;
   // raked windscreen
   loft([0, 1], k => {
@@ -486,23 +493,13 @@ function buildBoat() {
   for (const side of [1, -1]) {
     loft(range(0.5, uWs - 0.012, 4), u => {
       const x = xAt(u), z = side * (halfW(u) + 0.01);
-      return [[x, sh(u) + 0.5, z], [x, wsTop - (u - 0.5) * 0.4, z]];
+      return [[x, sh(u) + 0.5, z], [x, wsTop, z]];
     }, M.glass);
   }
-  // windscreen frame: white posts, chrome grab rail along the top
+  // windscreen frame posts
   for (const z of [-1, 1]) bar(xAt(uWs), wsBottom, xAt(uWt), wsTop, z * (halfW(uWs) - 0.02), 0.05, 0.05, M.hull);
-  {
-    const pts = [
-      new THREE.Vector3(xAt(0.5), wsTop + 0.04, halfW(0.5) + 0.01),
-      new THREE.Vector3(xAt(uWt) - 0.05, wsTop + 0.06, halfW(uWt) - 0.04),
-      new THREE.Vector3(xAt(uWt), wsTop + 0.07, 0),
-      new THREE.Vector3(xAt(uWt) - 0.05, wsTop + 0.06, -(halfW(uWt) - 0.04)),
-      new THREE.Vector3(xAt(0.5), wsTop + 0.04, -(halfW(0.5) + 0.01)),
-    ];
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 60, 0.018, 8), M.chrome));
-  }
 
-  // solid side wings: a slanted parallelogram from the gunwale up to the bimini, blue double stripe on the outside
+  // solid side wings: a slanted parallelogram from the gunwale up to the hardtop, blue double stripe on the outside
   const wing = { baseF: 0.5, baseR: 0.39, topF: 0.43, topR: 0.32 };
   for (const side of [1, -1]) {
     const z = side * (halfW(0.45) + 0.02);
@@ -530,26 +527,51 @@ function buildBoat() {
     bar(xAt(uA) + 0.17, yA, xAt(uB) + 0.17, yB + 0.03, z, 0.035, 0.01, M.blue);
   }
 
-  // cream canvas bimini from the wings forward over the windscreen, with a stainless front bow
-  const biW = halfW(0.45) + 0.08;
+  // white hardtop over the helm: overhangs the windscreen, beige non-skid top, solar panel, edge rails, antenna
+  const biW = halfW(0.45) + 0.1;
+  const rX0 = xAt(wing.topR) - 0.04, rX1 = xAt(uWt) + 0.32;
+  add(new RoundedBoxGeometry(rX1 - rX0, 0.1, biW * 2, 3, 0.045), M.hull, (rX0 + rX1) / 2, roofY, 0);
+  add(new RoundedBoxGeometry(rX1 - rX0 - 0.2, 0.02, biW * 2 - 0.2, 2, 0.008), M.beige, (rX0 + rX1) / 2, roofY + 0.055, 0);
+  add(new RoundedBoxGeometry(0.75, 0.025, 1.1, 1, 0.008), M.solar, (rX0 + rX1) / 2 - 0.1, roofY + 0.075, 0);
+  add(new RoundedBoxGeometry(0.42, 0.02, biW * 2 - 0.1, 2, 0.008), M.navy, rX1 - 0.25, roofY - 0.06, 0);
+  for (const side of [1, -1]) {
+    const z = side * (biW - 0.05);
+    const pts = [
+      new THREE.Vector3(rX0 + 0.06, roofY + 0.05, z), new THREE.Vector3(rX0 + 0.12, roofY + 0.13, z),
+      new THREE.Vector3(rX1 - 0.15, roofY + 0.13, z), new THREE.Vector3(rX1 - 0.08, roofY + 0.05, z),
+    ];
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.1), 40, 0.016, 8), M.chrome));
+  }
+  add(new THREE.CylinderGeometry(0.007, 0.012, 1.4, 6), M.hull, rX0 + 0.15, roofY + 0.7, -(biW - 0.15), 0, 0, 0.3);
+
+  // solid white side panel under the side windows, carrying the TARGA 737 lettering
+  for (const side of [1, -1]) {
+    loft(range(0.48, uWs, 6), u => {
+      const x = xAt(u), z = side * (halfW(u) + 0.012);
+      return [[x, sh(u), z], [x, sh(u) + 0.5, z]];
+    }, M.hull);
+    const m = add(new THREE.PlaneGeometry(0.5, 0.105), M.model, xAt(0.565), sh(0.565) + 0.3, side * (halfW(0.565) + 0.02));
+    if (side < 0) m.rotation.y = Math.PI;
+  }
+
+  // off-white canvas extension from the hardtop back over the cockpit, on two stainless bows at the transom
+  const uCan = 0.05;
   loft(range(0, 1, 8), k => {
-    const u = lerp(wing.topR - 0.005, uWt + 0.012, k), x = xAt(u), y = roofY + 0.02 - k * 0.07;
-    const sag = Math.sin(k * Math.PI * 4) * 0.012;      // canvas between the bows
-    return [[x, y - 0.04, biW], [x, y + 0.05 + sag, biW * 0.5], [x, y + 0.07 + sag, 0], [x, y + 0.05 + sag, -biW * 0.5], [x, y - 0.04, -biW]];
+    const u = lerp(wing.topR, uCan, k), x = xAt(u), y = roofY - 0.02 - k * 0.14;
+    const sag = Math.sin(k * Math.PI * 4) * 0.012, w = biW - 0.04;
+    return [[x, y - 0.05, w], [x, y + 0.03 + sag, w * 0.5], [x, y + 0.05 + sag, 0], [x, y + 0.03 + sag, -w * 0.5], [x, y - 0.05, -w]];
   }, M.canvas);
-  {
-    const xf = xAt(uWt + 0.012), yf = roofY - 0.05;
-    const pts = [new THREE.Vector3(xf, yf - 0.04, biW), new THREE.Vector3(xf + 0.02, yf + 0.06, 0), new THREE.Vector3(xf, yf - 0.04, -biW)];
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.016, 8), M.chrome));
-    for (const side of [1, -1]) bar(xf - 0.02, yf - 0.04, xAt(uWt) + 0.05, wsTop + 0.06, side * (biW - 0.06), 0.02, 0.02, M.chrome);
+  for (const side of [1, -1]) {
+    const z = side * (biW - 0.1);
+    bar(xAt(uCan), roofY - 0.2, xAt(uCan) - 0.02, sh(uCan), z, 0.03, 0.03, M.chrome);
   }
 
   // helm: dash under the windscreen, seats
   add(new RoundedBoxGeometry(0.42, 0.16, halfW(0.58) * 2 - 0.2, 2, 0.04), M.deck, xAt(0.575), wsBottom - 0.12, 0);
   for (const z of [-0.5, 0.5]) {
     add(new RoundedBoxGeometry(0.5, 0.42, 0.5, 3, 0.06), M.deck, xAt(0.5), sh(0.5) - SOLE + 0.21, z);
-    add(new RoundedBoxGeometry(0.5, 0.12, 0.5, 3, 0.05), M.cushion, xAt(0.5), sh(0.5) - SOLE + 0.48, z);
-    add(new RoundedBoxGeometry(0.1, 0.45, 0.46, 3, 0.04), M.cushion, xAt(0.5) - 0.24, sh(0.5) - SOLE + 0.75, z);
+    add(new RoundedBoxGeometry(0.5, 0.12, 0.5, 3, 0.05), M.seat, xAt(0.5), sh(0.5) - SOLE + 0.48, z);
+    add(new RoundedBoxGeometry(0.1, 0.45, 0.46, 3, 0.04), M.seat, xAt(0.5) - 0.24, sh(0.5) - SOLE + 0.75, z);
   }
 
   // stainless grab rails along the cabin top, and an anchor bowsprit
@@ -582,6 +604,8 @@ function buildBoat() {
     }
   }
 
+  add(new RoundedBoxGeometry(0.4, 0.38, 0.62, 3, 0.05), M.esky, xAt(0.035), sh(0.035) + 0.19, -0.35);
+
   // sterndrive: swim platform on the transom, leg under the water
   add(new RoundedBoxGeometry(0.55, 0.07, 2.1, 2, 0.03), M.deck, X0 - 0.27, 0.36, 0);
   add(new RoundedBoxGeometry(0.34, 0.6, 0.22, 2, 0.06), M.dark, X0 - 0.2, 0.02, 0);
@@ -599,6 +623,19 @@ function buildBoat() {
   }
 
   return g;
+}
+
+function modelDecal() {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 108;
+  const x = c.getContext('2d');
+  x.fillStyle = '#16181a';
+  x.font = 'italic 700 70px Georgia, "Times New Roman", serif';
+  x.textBaseline = 'middle';
+  x.fillText('TARGA 737', 8, 56);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: 0.3, polygonOffset: true, polygonOffsetFactor: -2 });
 }
 
 function nameDecal() {
