@@ -308,7 +308,7 @@ function buildBoat() {
     blue: new THREE.MeshPhysicalMaterial({ color: 0x1f5fb8, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1, side: THREE.DoubleSide }),
     deck: new THREE.MeshStandardMaterial({ color: 0xe6e7e3, roughness: 0.6, side: THREE.DoubleSide }),
     chrome: new THREE.MeshStandardMaterial({ color: 0xe8ecef, metalness: 1, roughness: 0.12 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: 0x3b5562, roughness: 0.02, metalness: 0.5, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0x1c2b33, roughness: 0.04, metalness: 0.65, clearcoat: 1, transparent: true, opacity: 0.86, side: THREE.DoubleSide }),
     canvas: new THREE.MeshStandardMaterial({ color: 0xece8dc, roughness: 0.9, side: THREE.DoubleSide }),
     beige: new THREE.MeshStandardMaterial({ color: 0xd8ccb2, roughness: 0.85 }),
     solar: new THREE.MeshStandardMaterial({ color: 0x1a2230, roughness: 0.25, metalness: 0.6 }),
@@ -489,15 +489,24 @@ function buildBoat() {
     const u = lerp(uWs, uWt, k), x = xAt(u), y = lerp(wsBottom, wsTop, k), w = halfW(u) - 0.03 * k;
     return [[x, y, w], [x, y, -w]];
   }, M.glass);
-  // side glass wrapping back to the wings
+  // side windows: one tinted trapezoid per side, from the wing's slanted front edge
+  // forward to the windscreen's raked edge, between the white side panel and the roof
+  const sillY = u => sh(u) + 0.5;
+  const wingFrontU = y => lerp(0.5, 0.43, (y - sh(0.47)) / (roofY - sh(0.47)));     // matches the wing below
+  const wsFrontU = y => lerp(uWs, uWt, clamp((y - wsBottom) / (wsTop - wsBottom), 0, 1));
   for (const side of [1, -1]) {
-    loft(range(0.5, uWs - 0.012, 4), u => {
-      const x = xAt(u), z = side * (halfW(u) + 0.01);
-      return [[x, sh(u) + 0.5, z], [x, wsTop, z]];
+    loft(range(0, 1, 6), k => {
+      const y = lerp(sillY(0.5), wsTop, k);
+      const ur = wingFrontU(y) - 0.006, uf = wsFrontU(y);
+      return [ur, lerp(ur, uf, 0.5), uf].map(u => [xAt(u), y, side * (halfW(u) + 0.01)]);
     }, M.glass);
+    // white sill under the window and a slim frame up the windscreen edge
+    bar(xAt(0.47), sillY(0.47), xAt(uWs), sillY(uWs), side * (halfW(0.54) + 0.02), 0.04, 0.03, M.hull);
   }
-  // windscreen frame posts
-  for (const z of [-1, 1]) bar(xAt(uWs), wsBottom, xAt(uWt), wsTop, z * (halfW(uWs) - 0.02), 0.05, 0.05, M.hull);
+  // windscreen frame: corner posts and a centre mullion
+  for (const z of [-1, 1]) bar(xAt(uWs), wsBottom, xAt(uWt), wsTop, z * (halfW(uWs) - 0.01), 0.055, 0.055, M.hull);
+  bar(xAt(uWs) + 0.01, wsBottom, xAt(uWt) + 0.01, wsTop, 0, 0.04, 0.04, M.hull);
+  add(new THREE.BoxGeometry(0.06, 0.05, halfW(uWs) * 2), M.hull, xAt(uWs), wsBottom + 0.02, 0);   // bottom rail
 
   // solid side wings: a slanted parallelogram from the gunwale up to the hardtop, blue double stripe on the outside
   const wing = { baseF: 0.5, baseR: 0.39, topF: 0.43, topR: 0.32 };
@@ -546,11 +555,11 @@ function buildBoat() {
 
   // solid white side panel under the side windows, carrying the TARGA 737 lettering
   for (const side of [1, -1]) {
-    loft(range(0.48, uWs, 6), u => {
+    loft(range(0.465, uWs, 8), u => {
       const x = xAt(u), z = side * (halfW(u) + 0.012);
       return [[x, sh(u), z], [x, sh(u) + 0.5, z]];
     }, M.hull);
-    const m = add(new THREE.PlaneGeometry(0.5, 0.105), M.model, xAt(0.565), sh(0.565) + 0.3, side * (halfW(0.565) + 0.02));
+    const m = add(new THREE.PlaneGeometry(0.5, 0.105), M.model, xAt(0.56), sh(0.56) + 0.27, side * (halfW(0.465) + 0.025));
     if (side < 0) m.rotation.y = Math.PI;
   }
 
