@@ -155,14 +155,14 @@ function init() {
     // Boat: idle bob, then plane away
     const run = Math.pow(d, 2.3) * 420;
     const planing = smooth(0, 0.12, d) * (1 - 0.6 * smooth(0.25, 1, d));
-    boat.position.set(run, -0.2 + Math.sin(time * 1.1) * 0.05 + planing * 0.12, 0);
+    boat.position.set(run, -0.1 + Math.sin(time * 1.1) * 0.05 + planing * 0.12, 0);
     boat.rotation.set(
       Math.sin(time * 0.7) * 0.025 * (1 - planing),           // roll
       0,
       Math.sin(time * 0.9) * 0.012 + planing * 0.075,           // pitch (bow up when getting on plane)
     );
 
-    trail.update(time, -4.3, run - 4.3, d);
+    trail.update(time, -4.0, run - 4.0, d);
 
     // Camera: helix around the boat, then ease down to a horizon shot that follows it
     orbitPos(s, camPos);
@@ -172,10 +172,10 @@ function init() {
     if (d > 0) camPos.lerpVectors(end, finalCam, easeInOut(settle));
     camera.position.copy(camPos);
 
-    target.set(0, 0.9, 0);
+    target.set(0, 1.1, 0);
     const follow = smooth(0, 0.4, d);
     target.x = lerp(0, boat.position.x * 0.92, follow);
-    target.y = lerp(0.9, 1.6, follow);
+    target.y = lerp(1.1, 1.6, follow);
     camera.lookAt(target);
 
     water.material.uniforms.time.value = time * 0.6;
@@ -290,65 +290,67 @@ function makeWaterNormals(size) {
 }
 
 /* =========================================================
-   The boat: a ~8 m centre-console with a T-top and twin
-   outboards, built from lofted hull sections.
-   Bow points +x, starboard is +z, waterline ≈ y 0.
+   The boat: a Fraser 737 — a 7.37 m West Australian hardtop
+   cabin boat. White deep-V hull, navy rub strip, blue
+   pinstripes and the blue swoosh down the hardtop pillar,
+   forward cabin, raked windscreen, canvas extension aft,
+   sterndrive with a swim platform.
+   Bow points +x, starboard is +z, waterline ≈ y 0.2.
    ========================================================= */
 function buildBoat() {
-  const LEN = 8, X0 = -4, W_IN = 0.14, SOLE = 0.62;
+  const LEN = 7.37, X0 = -LEN / 2, W_IN = 0.13, SOLE = 0.6;
   const g = new THREE.Group();
 
   const M = {
-    hull: new THREE.MeshPhysicalMaterial({ color: 0xf5f7f8, roughness: 0.22, clearcoat: 1, clearcoatRoughness: 0.06, side: THREE.DoubleSide }),
-    navy: new THREE.MeshPhysicalMaterial({ color: 0x0d2b40, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1, side: THREE.DoubleSide }),
-    gold: new THREE.MeshStandardMaterial({ color: 0xd19a45, metalness: 0.7, roughness: 0.3, side: THREE.DoubleSide }),
-    deck: new THREE.MeshStandardMaterial({ color: 0xe9ebea, roughness: 0.55, side: THREE.DoubleSide }),
-    teak: new THREE.MeshStandardMaterial({ map: teakTexture(), roughness: 0.75, side: THREE.DoubleSide }),
+    hull: new THREE.MeshPhysicalMaterial({ color: 0xf6f6f2, roughness: 0.2, clearcoat: 1, clearcoatRoughness: 0.06, side: THREE.DoubleSide }),
+    navy: new THREE.MeshPhysicalMaterial({ color: 0x14243a, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1, side: THREE.DoubleSide }),
+    blue: new THREE.MeshPhysicalMaterial({ color: 0x1f5fb8, roughness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1, side: THREE.DoubleSide }),
+    deck: new THREE.MeshStandardMaterial({ color: 0xe6e7e3, roughness: 0.6, side: THREE.DoubleSide }),
     chrome: new THREE.MeshStandardMaterial({ color: 0xe8ecef, metalness: 1, roughness: 0.12 }),
-    glass: new THREE.MeshPhysicalMaterial({ color: 0x1b2e38, roughness: 0.04, metalness: 0.3, transparent: true, opacity: 0.6 }),
-    canvas: new THREE.MeshStandardMaterial({ color: 0x12324a, roughness: 0.85, side: THREE.DoubleSide }),
-    cushion: new THREE.MeshStandardMaterial({ color: 0xf1ebe1, roughness: 0.9 }),
-    engine: new THREE.MeshPhysicalMaterial({ color: 0x16191c, roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.08 }),
+    glass: new THREE.MeshPhysicalMaterial({ color: 0x3b5562, roughness: 0.02, metalness: 0.5, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
+    canvas: new THREE.MeshStandardMaterial({ color: 0x1d2a33, roughness: 0.85, side: THREE.DoubleSide }),
+    cushion: new THREE.MeshStandardMaterial({ color: 0xece6da, roughness: 0.9 }),
     dark: new THREE.MeshStandardMaterial({ color: 0x2a3036, roughness: 0.5, metalness: 0.3 }),
   };
 
+  // Plan shape and sheer: fine raked entry, beam 2.5 m, near-flat sheer rising a little forward
   const prof = u => {
-    const hb = u < 0.45
-      ? 1.28 * (0.88 + 0.12 * Math.sin((u / 0.45) * Math.PI / 2))
-      : 1.28 * Math.pow(Math.max(0, 1 - Math.pow((u - 0.45) / 0.55, 2)), 0.62);
-    const sheer = 1.0 + 0.36 * Math.pow(u, 2.2);
-    const keel = -0.36 + (u > 0.55 ? 1.12 * Math.pow((u - 0.55) / 0.45, 2.1) : 0);
+    const hb = u < 0.42
+      ? 1.25 * (0.9 + 0.1 * Math.sin((u / 0.42) * Math.PI / 2))
+      : 1.25 * Math.pow(Math.max(0, 1 - Math.pow((u - 0.42) / 0.58, 2)), 0.58);
+    const sheer = 1.12 + 0.34 * Math.pow(u, 2.2);
+    const keel = -0.38 + (u > 0.52 ? 1.25 * Math.pow((u - 0.52) / 0.48, 2.0) : 0);
     return { hb, sheer, keel };
   };
-  // starboard half-section, keel -> gunwale, as [z, y]
+  // Deep-V section with a reverse chine, keel -> gunwale, as [z, y]
   const section = u => {
     const { hb, sheer, keel } = prof(u);
-    const dead = 0.34 * (1 - u * 0.25);
-    const chine = Math.min(keel + dead, sheer - 0.08);
+    const dead = 0.4 * (1 - u * 0.2);
+    const chine = Math.min(keel + dead, sheer - 0.1);
     return [
       [0, keel],
-      [hb * 0.5, keel + dead * 0.55],
-      [hb * 0.9, chine],
-      [hb * 0.98, chine + 0.03],
-      [hb, lerp(chine, sheer, 0.5)],
-      [hb * 0.995, sheer],
+      [hb * 0.45, keel + dead * 0.5],
+      [hb * 0.88, chine],
+      [hb * 0.97, chine - 0.015],            // reverse chine flat
+      [hb, chine + 0.06],
+      [hb, lerp(chine, sheer, 0.55)],
+      [hb * 0.99, sheer],
     ];
   };
   const xAt = u => X0 + u * LEN;
   const zAt = (u, y) => {
     const s = section(u);
     for (let i = 0; i < s.length - 1; i++) {
-      if (y >= s[i][1] && y <= s[i + 1][1]) return lerp(s[i][0], s[i + 1][0], (y - s[i][1]) / Math.max(1e-4, s[i + 1][1] - s[i][1]));
+      const y0 = Math.min(s[i][1], s[i + 1][1]), y1 = Math.max(s[i][1], s[i + 1][1]);
+      if (y >= y0 && y <= y1) return lerp(s[i][0], s[i + 1][0], (y - s[i][1]) / ((s[i + 1][1] - s[i][1]) || 1e-4));
     }
-    return s[s.length - 1][0];
+    return y > s[s.length - 1][1] ? s[s.length - 1][0] : 0;
   };
 
-  // Generic lofted strip: for each u, a row of points; quads between rows
   function loft(us, row, mat) {
     const rows = us.map(row);
     const n = rows[0].length;
-    const pos = [];
-    const idx = [];
+    const pos = [], idx = [];
     rows.forEach(r => r.forEach(p => pos.push(p[0], p[1], p[2])));
     for (let i = 0; i < rows.length - 1; i++) {
       for (let j = 0; j < n - 1; j++) {
@@ -365,57 +367,64 @@ function buildBoat() {
     return m;
   }
   const range = (a, b, n) => Array.from({ length: n + 1 }, (_, i) => lerp(a, b, i / n));
+  const add = (geo, mat, x, y, z, rx = 0, ry = 0, rz = 0) => {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
+    g.add(m);
+    return m;
+  };
+  // A flat bar between two points in the side (x/y) plane, at a given z
+  const bar = (x1, y1, x2, y2, z, width, depth, mat) => {
+    const L = Math.hypot(x2 - x1, y2 - y1);
+    return add(new THREE.BoxGeometry(L, width, depth), mat, (x1 + x2) / 2, (y1 + y2) / 2, z, 0, 0, Math.atan2(y2 - y1, x2 - x1));
+  };
 
-  // Hull skin: port gunwale -> keel -> starboard gunwale
-  loft(range(0, 1, 64), u => {
+  // ---- Hull skin + transom
+  loft(range(0, 1, 72), u => {
     const s = section(u), x = xAt(u), r = [];
     for (let i = s.length - 1; i >= 1; i--) r.push([x, s[i][1], -s[i][0]]);
     for (const q of s) r.push([x, q[1], q[0]]);
     return r;
   }, M.hull);
-
-  // Transom (flat stern panel)
   {
     const s = section(0), pts = [];
     for (let i = s.length - 1; i >= 1; i--) pts.push(new THREE.Vector2(-s[i][0], s[i][1]));
     for (const q of s) pts.push(new THREE.Vector2(q[0], q[1]));
     const geo = new THREE.ShapeGeometry(new THREE.Shape(pts));
     geo.rotateY(Math.PI / 2);
-    const m = new THREE.Mesh(geo, M.hull);
-    m.position.x = X0;
-    g.add(m);
+    add(geo, M.hull, X0, 0, 0);
   }
 
-  // Navy hull band + gold pinstripe, following the topsides
-  const band = (o0, o1, mat, u1 = 0.97) => {
+  // ---- Livery: navy rub strip, blue pinstripe under it, blue boot line above the waterline
+  const bandAt = (yLo, yHi, mat, u0 = 0, u1 = 0.97, n = 56) => {
     for (const side of [1, -1]) {
-      loft(range(0, u1, 48), u => {
-        const { sheer } = prof(u), x = xAt(u);
-        return [o0, o1].map(o => { const y = sheer + o; return [x, y, side * (zAt(u, y) + 0.008)]; });
+      loft(range(u0, u1, n), u => {
+        const x = xAt(u);
+        return [yLo(u), yHi(u)].map(y => [x, y, side * (zAt(u, y) + 0.008)]);
       }, mat);
     }
   };
-  band(-0.34, -0.15, M.navy);
-  band(-0.41, -0.38, M.gold, 0.93);
+  const sh = u => prof(u).sheer;
+  bandAt(u => sh(u) - 0.13, u => sh(u) - 0.03, M.navy, 0, 0.985);
+  bandAt(u => sh(u) - 0.2, u => sh(u) - 0.17, M.blue, 0, 0.95);
+  const boot = u => Math.min(Math.max(0.4, section(u)[4][1] + 0.08), sh(u) - 0.35);
+  bandAt(u => boot(u), u => boot(u) + 0.035, M.blue, 0, 0.9);
 
-  // Gunwale caps
+  // ---- Decks: gunwale caps, foredeck, cockpit
   for (const side of [1, -1]) {
     loft(range(0, 1, 48), u => {
       const { hb, sheer } = prof(u), x = xAt(u);
       return [[x, sheer, side * hb], [x, sheer + 0.004, side * Math.max(0, hb - W_IN)]];
     }, M.deck);
   }
-  // Foredeck
   loft(range(0.6, 1, 24), u => {
     const { hb, sheer } = prof(u), x = xAt(u), w = Math.max(0, hb - W_IN);
     return [[x, sheer + 0.003, w], [x, sheer + 0.03, 0], [x, sheer + 0.003, -w]];
   }, M.deck);
-  // Aft deck strip over the transom
   loft(range(0, 0.03, 2), u => {
     const { hb, sheer } = prof(u), x = xAt(u), w = hb - W_IN;
     return [[x, sheer + 0.003, w], [x, sheer + 0.003, -w]];
   }, M.deck);
-  // Cockpit: inner walls, teak sole, bulkheads
   const CK = range(0.03, 0.6, 30);
   for (const side of [1, -1]) {
     loft(CK, u => {
@@ -426,101 +435,163 @@ function buildBoat() {
   loft(CK, u => {
     const { hb, sheer } = prof(u), x = xAt(u), z = hb - W_IN;
     return [[x, sheer - SOLE, z], [x, sheer - SOLE, -z]];
-  }, M.teak);
-  for (const u of [0.03, 0.6]) {
-    const { hb, sheer } = prof(u), z = hb - W_IN;
+  }, M.deck);
+  {
+    const { hb, sheer } = prof(0.03), z = hb - W_IN;
     const geo = new THREE.PlaneGeometry(z * 2, SOLE);
     geo.rotateY(Math.PI / 2);
-    const m = new THREE.Mesh(geo, M.deck);
-    m.position.set(xAt(u), sheer - SOLE / 2, 0);
-    g.add(m);
+    add(geo, M.deck, xAt(0.03), sheer - SOLE / 2, 0);
   }
 
-  // Rub rails
-  for (const side of [1, -1]) {
-    const pts = range(0, 1, 40).map(u => { const { hb, sheer } = prof(u); return new THREE.Vector3(xAt(u), sheer - 0.025, side * (hb + 0.012)); });
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 120, 0.035, 8), M.dark));
-  }
-
-  // Bow rail with stanchions
+  // ---- Forward cabin: a low moulded top that sweeps down into the foredeck
+  const cabW = u => Math.max(0.05, prof(u).hb - 0.2);
+  const cabH = u => sh(u) + 0.5 * (1 - smooth(0.76, 0.92, u));
+  loft(range(0.6, 0.93, 30), u => {
+    const { hb, sheer } = prof(u), x = xAt(u), w = cabW(u), t = cabH(u), wi = Math.max(0, hb - W_IN);
+    return [
+      [x, sheer + 0.004, wi], [x, t - 0.06, Math.min(wi, w - 0.08)], [x, t, w * 0.55], [x, t + 0.035, 0],
+      [x, t, -w * 0.55], [x, t - 0.06, -Math.min(wi, w - 0.08)], [x, sheer + 0.004, -wi],
+    ];
+  }, M.hull);
+  // bulkhead under the windscreen, cockpit side
   {
-    const H = 0.32, inset = 0.07;
-    const star = range(0.62, 0.985, 14).map(u => { const { hb, sheer } = prof(u); return new THREE.Vector3(xAt(u), sheer + H, Math.max(0, hb - inset)); });
+    const u = 0.6, { hb, sheer } = prof(u), w = hb - W_IN, t = cabH(u);
+    const geo = new THREE.PlaneGeometry(w * 2, t - (sheer - SOLE));
+    geo.rotateY(Math.PI / 2);
+    add(geo, M.deck, xAt(u), (t + sheer - SOLE) / 2, 0);
+  }
+  // cabin side windows
+  for (const side of [1, -1]) {
+    loft(range(0.64, 0.78, 6), u => {
+      const { hb, sheer } = prof(u), x = xAt(u), wi = hb - W_IN, w = cabW(u), t = cabH(u);
+      const zAtY = y => lerp(wi, Math.min(wi, w - 0.08), (y - sheer) / (t - 0.06 - sheer));
+      const y0 = sheer + 0.12, y1 = sheer + 0.3;
+      return [[x, y0, side * (zAtY(y0) + 0.012)], [x, y1, side * (zAtY(y1) + 0.012)]];
+    }, M.glass);
+  }
+
+  // ---- Hardtop wheelhouse
+  const uWs = 0.6, uWt = 0.535, uRoofBack = 0.33;
+  const roofY = sh(0.5) + 1.3;
+  const wsBottom = cabH(uWs);
+  const halfW = u => prof(u).hb - 0.22;
+  // raked windscreen
+  loft([0, 1], k => {
+    const u = lerp(uWs, uWt, k), x = xAt(u), y = lerp(wsBottom, roofY - 0.06, k), w = halfW(u) - 0.04 * k;
+    return [[x, y, w], [x, y, -w]];
+  }, M.glass);
+  // windscreen frame: centre mullion + side posts
+  for (const z of [-1, 0, 1]) {
+    const zz = z === 0 ? 0 : z * (halfW(uWs) - 0.02);
+    bar(xAt(uWs), wsBottom, xAt(uWt), roofY - 0.04, zz, 0.05, 0.05, z === 0 ? M.hull : M.hull);
+  }
+  // side glass between windscreen and the rear pillar
+  for (const side of [1, -1]) {
+    loft(range(0.45, 0.58, 4), u => {
+      const x = xAt(u), z = side * (halfW(u) + 0.02);
+      const yLo = Math.max(sh(u) + 0.42, u > 0.585 ? wsBottom : sh(u) + 0.42);
+      return [[x, yLo, z], [x, roofY - 0.06, z]];
+    }, M.glass);
+  }
+  // roof with a dark visor underneath and grab rails on top
+  const roofX0 = xAt(uRoofBack), roofX1 = xAt(uWt) + 0.18;
+  const roofW = halfW(0.5) * 2 + 0.16;
+  add(new RoundedBoxGeometry(roofX1 - roofX0, 0.09, roofW, 3, 0.04), M.hull, (roofX0 + roofX1) / 2, roofY, 0);
+  add(new RoundedBoxGeometry(0.5, 0.02, roofW - 0.08, 2, 0.008), M.navy, roofX1 - 0.3, roofY - 0.055, 0);
+  for (const side of [1, -1]) {
+    const z = side * (roofW / 2 - 0.12);
+    const pts = [
+      new THREE.Vector3(roofX0 + 0.25, roofY + 0.04, z), new THREE.Vector3(roofX0 + 0.3, roofY + 0.14, z),
+      new THREE.Vector3(roofX1 - 0.35, roofY + 0.14, z), new THREE.Vector3(roofX1 - 0.3, roofY + 0.04, z),
+    ];
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, 'catmullrom', 0.1), 40, 0.018, 8), M.chrome));
+  }
+  // antenna, raked back
+  add(new THREE.CylinderGeometry(0.008, 0.014, 1.5, 6), M.hull, roofX0 + 0.25, roofY + 0.75, -(roofW / 2 - 0.2), 0, 0, 0.35);
+
+  // rear pillars: solid, slanting forward to the gunwale, with the blue swoosh
+  const pTop = [xAt(uRoofBack) + 0.12, roofY - 0.04], pFoot = [xAt(0.43), sh(0.43) + 0.02];
+  for (const side of [1, -1]) {
+    const z = side * (halfW(0.4) + 0.02);
+    bar(pTop[0], pTop[1], pFoot[0], pFoot[1], z, 0.26, 0.05, M.hull);
+    // two blue bands along the pillar's outer face, carrying on down the hull side
+    const off = side * 0.03;
+    bar(pTop[0] + 0.02, pTop[1] - 0.06, pFoot[0] + 0.05, pFoot[1], z + off, 0.08, 0.012, M.blue);
+    bar(pTop[0] - 0.07, pTop[1] - 0.06, pFoot[0] - 0.04, pFoot[1], z + off, 0.03, 0.012, M.blue);
+  }
+  bandAt(u => sh(u) - 0.17, u => sh(u) - 0.08, M.blue, 0.4, 0.46, 4);
+
+  // helm: dash under the windscreen, seats
+  add(new RoundedBoxGeometry(0.42, 0.18, halfW(0.58) * 2 - 0.1, 2, 0.04), M.dark, xAt(0.575), wsBottom - 0.1, 0);
+  for (const z of [-0.5, 0.5]) {
+    add(new RoundedBoxGeometry(0.5, 0.42, 0.5, 3, 0.06), M.deck, xAt(0.5), sh(0.5) - SOLE + 0.21, z);
+    add(new RoundedBoxGeometry(0.5, 0.12, 0.5, 3, 0.05), M.cushion, xAt(0.5), sh(0.5) - SOLE + 0.48, z);
+    add(new RoundedBoxGeometry(0.1, 0.45, 0.46, 3, 0.04), M.cushion, xAt(0.5) - 0.24, sh(0.5) - SOLE + 0.75, z);
+  }
+
+  // canvas extension aft of the hardtop on two stainless bows
+  const uCan = 0.1;
+  loft([0, 1], k => {
+    const u = lerp(uRoofBack + 0.02, uCan, k), x = xAt(u), y = roofY - 0.04 - k * 0.12, w = roofW / 2 - 0.06 - k * 0.05;
+    return [[x, y, w], [x, y + 0.04, 0], [x, y, -w]];
+  }, M.canvas);
+  for (const side of [1, -1]) {
+    const z = side * (roofW / 2 - 0.12);
+    bar(xAt(uCan), roofY - 0.17, xAt(uCan) - 0.05, sh(uCan), z, 0.035, 0.035, M.chrome);
+  }
+
+  // rear lounge / engine box, transom door side
+  {
+    const u = 0.07, { hb, sheer } = prof(u), w = (hb - W_IN) * 2 * 0.94;
+    add(new RoundedBoxGeometry(0.6, 0.45, w, 3, 0.07), M.deck, xAt(u), sheer - SOLE + 0.22, 0);
+    add(new RoundedBoxGeometry(0.55, 0.12, w - 0.04, 3, 0.05), M.cushion, xAt(u) + 0.02, sheer - SOLE + 0.5, 0);
+  }
+
+  // bow rail along the foredeck
+  {
+    const H = 0.36, inset = 0.07;
+    const star = range(0.66, 0.985, 14).map(u => { const { hb, sheer } = prof(u); return new THREE.Vector3(xAt(u), sheer + H, Math.max(0, hb - inset)); });
     const pts = [...star, ...star.slice(0, -1).reverse().map(v => new THREE.Vector3(v.x, v.y, -v.z))];
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, 0.022, 8), M.chrome));
-    for (const u of [0.64, 0.74, 0.84, 0.93]) {
+    g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 160, 0.02, 8), M.chrome));
+    for (const u of [0.68, 0.78, 0.87, 0.94]) {
       const { hb, sheer } = prof(u);
       for (const side of [1, -1]) {
-        const post = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, H, 8), M.chrome);
-        post.position.set(xAt(u), sheer + H / 2, side * Math.max(0, hb - inset));
-        g.add(post);
+        add(new THREE.CylinderGeometry(0.015, 0.015, H, 8), M.chrome, xAt(u), sheer + H / 2, side * Math.max(0, hb - inset));
       }
     }
   }
 
-  const add = (geo, mat, x, y, z, rx = 0, ry = 0, rz = 0) => {
-    const m = new THREE.Mesh(geo, mat);
-    m.position.set(x, y, z); m.rotation.set(rx, ry, rz);
-    g.add(m);
-    return m;
-  };
-
-  // Centre console + windscreen
-  const uC = 0.44, xC = xAt(uC), sole = prof(uC).sheer - SOLE;
-  add(new RoundedBoxGeometry(0.95, 1.05, 0.95, 3, 0.09), M.deck, xC, sole + 0.525, 0);
-  add(new RoundedBoxGeometry(0.06, 0.42, 0.92, 2, 0.02), M.glass, xC + 0.5, sole + 1.18, 0, 0, 0, 0.5);
-  add(new RoundedBoxGeometry(0.3, 0.04, 0.5, 2, 0.015), M.dark, xC + 0.2, sole + 1.07, 0, 0, 0, -0.3);
-
-  // T-top: four chrome legs and a navy canopy
-  for (const dx of [-0.55, 0.42]) {
-    for (const dz of [-0.5, 0.5]) {
-      add(new THREE.CylinderGeometry(0.03, 0.03, 2.2, 10), M.chrome, xC + dx, sole + 1.1, dz);
-    }
-  }
-  add(new RoundedBoxGeometry(2.1, 0.1, 1.75, 3, 0.045), M.canvas, xC - 0.08, sole + 2.22, 0);
-  add(new RoundedBoxGeometry(2.14, 0.035, 1.79, 2, 0.015), M.chrome, xC - 0.08, sole + 2.16, 0);
-
-  // Leaning post, rear bench, bow cushions
-  add(new RoundedBoxGeometry(0.5, 0.85, 0.95, 3, 0.08), M.deck, xC - 1.0, sole + 0.43, 0);
-  add(new RoundedBoxGeometry(0.42, 0.18, 0.9, 3, 0.07), M.cushion, xC - 1.0, sole + 0.94, 0);
-  {
-    const u = 0.1, { hb, sheer } = prof(u), w = (hb - W_IN) * 2 * 0.94;
-    add(new RoundedBoxGeometry(0.55, 0.42, w, 3, 0.07), M.deck, xAt(u), sheer - SOLE + 0.21, 0);
-    add(new RoundedBoxGeometry(0.5, 0.14, w - 0.04, 3, 0.06), M.cushion, xAt(u) + 0.02, sheer - SOLE + 0.48, 0);
-  }
-  {
-    const u = 0.72, { hb, sheer } = prof(u);
-    add(new RoundedBoxGeometry(1.1, 0.12, (hb - W_IN) * 1.6, 3, 0.05), M.cushion, xAt(u), sheer + 0.09, 0);
+  // sterndrive: swim platform on the transom, leg under the water
+  add(new RoundedBoxGeometry(0.6, 0.07, 2.1, 2, 0.03), M.dark, X0 - 0.3, 0.36, 0);
+  add(new RoundedBoxGeometry(0.34, 0.6, 0.22, 2, 0.06), M.dark, X0 - 0.2, 0.02, 0);
+  for (const side of [1, -1]) {
+    bar(X0 - 0.55, 0.39, X0 - 0.55, 0.78, side * 0.95, 0.025, 0.025, M.chrome);
+    bar(X0 - 0.55, 0.78, X0 - 0.05, sh(0) + 0.1, side * 0.95, 0.025, 0.025, M.chrome);
   }
 
-  // Twin outboards
-  const s0 = prof(0).sheer;
-  for (const z of [-0.45, 0.45]) {
-    add(new RoundedBoxGeometry(0.3, 0.28, 0.32, 2, 0.04), M.dark, X0 - 0.14, s0 - 0.12, z);
-    add(new RoundedBoxGeometry(0.66, 0.82, 0.48, 4, 0.14), M.engine, X0 - 0.46, s0 + 0.28, z);
-    add(new RoundedBoxGeometry(0.67, 0.05, 0.49, 2, 0.02), M.gold, X0 - 0.46, s0 + 0.1, z);
-    add(new RoundedBoxGeometry(0.3, 0.9, 0.2, 2, 0.06), M.engine, X0 - 0.4, s0 - 0.5, z);
-    add(new RoundedBoxGeometry(0.42, 0.14, 0.12, 2, 0.05), M.dark, X0 - 0.42, s0 - 1.0, z);
+  // FRASER decal near the stern, both sides
+  const decal = nameDecal();
+  for (const side of [1, -1]) {
+    const u = 0.12, y = sh(u) - 0.42;
+    const m = add(new THREE.PlaneGeometry(0.9, 0.18), decal, xAt(u), y, side * (zAt(u, y) + 0.012));
+    if (side < 0) m.rotation.y = Math.PI;
   }
 
   return g;
 }
 
-function teakTexture() {
+function nameDecal() {
   const c = document.createElement('canvas');
-  c.width = 256; c.height = 256;
+  c.width = 512; c.height = 102;
   const x = c.getContext('2d');
-  x.fillStyle = '#a7744a'; x.fillRect(0, 0, 256, 256);
-  for (let i = 0; i < 16; i++) {
-    x.fillStyle = `hsl(28, ${38 + (i * 37) % 14}%, ${40 + (i * 53) % 9}%)`;
-    x.fillRect(0, i * 16 + 1, 256, 13);
-    x.fillStyle = '#2a1c12'; x.fillRect(0, i * 16 + 14, 256, 2);
-  }
+  x.fillStyle = '#14243a';
+  x.font = 'italic 700 74px Georgia, "Times New Roman", serif';
+  x.textBaseline = 'middle';
+  x.fillText('FRASER', 8, 54);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(2, 2);
-  return t;
+  t.anisotropy = 4;
+  return new THREE.MeshStandardMaterial({ map: t, transparent: true, roughness: 0.3, polygonOffset: true, polygonOffsetFactor: -2 });
 }
 
 /* =========================================================
