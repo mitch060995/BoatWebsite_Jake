@@ -1,52 +1,61 @@
 # Fraser Marine Sales — website
 
-Plain HTML/CSS/JS, no build step. Hosts on GitHub Pages or Cloudflare Pages as-is.
+Plain HTML/CSS/JS, no build step and no outside services. Hosts on GitHub Pages or Cloudflare Pages as-is.
 
 ```
 index.html          the public site
-admin.html          your private listings page (not linked anywhere, login required)
-css/                styles (styles.css site, hero.css 3D opener, admin.css admin page)
+admin/              your private listings editor (Sveltia CMS, not linked anywhere)
+  index.html
+  config.yml        which fields a boat has, where photos go
+data/boats.json     the boats for sale (written by the editor)
+images/boats/       boat photos (uploaded by the editor)
+css/                styles (styles.css site, hero.css 3D opener)
 js/hero.js          3D drone-shot opener (three.js)
 js/site.js          page animations, menu, contact form
-js/listings.js      "Boats for sale" section, read from Supabase
-js/admin.js         add / edit / delete boats and photos
-js/config.js        your Supabase URL + anon key  <-- fill this in
-supabase/setup.sql  database, security rules and photo storage
+js/listings.js      "Boats for sale" section, reads data/boats.json
 ```
 
-## Boats for sale: one-time setup (about 15 minutes)
+## Boats for sale
 
-The listings live in a free [Supabase](https://supabase.com) project (database, login and photo storage).
-Until it's connected, the "Boats for sale" section simply stays hidden.
+Listings live in this GitHub repo: the editor saves them to `data/boats.json` and the photos to `images/boats/`.
+No database or extra account is needed, just your GitHub login. The editor is
+[Sveltia CMS](https://github.com/sveltia/sveltia-cms) (free, MIT licence), loaded from a CDN.
 
-1. **Create the project.** Sign up at supabase.com, then *New project*. Pick the **Sydney** region and save the database password somewhere safe.
-2. **Create the tables and rules.** Open *SQL Editor* → *New query*, paste everything from `supabase/setup.sql`, change `you@example.com` to the email you'll log in with, and click **Run**.
-3. **Lock down sign-ups.** *Authentication* → *Sign In / Providers*: turn **off** "Allow new users to sign up".
-4. **Create your login.** *Authentication* → *Users* → *Add user* → *Create new user*: your email (the same one as step 2) and a strong password. Tick *Auto confirm user*.
-5. **Password-reset links.** *Authentication* → *URL Configuration*: set *Site URL* to your website address, and add `https://YOUR-SITE/admin.html` under *Redirect URLs*.
-6. **Connect the website.** Copy the **Project URL** (*Project Settings* → *Data API*) and the **publishable key** (*Project Settings* → *API Keys*, starts with `sb_publishable_`) into `js/config.js`, then commit and push. Never use a secret key (`sb_secret_…` or `service_role`).
+The "Boats for sale" section and its menu link only appear once at least one boat is listed (not a draft).
 
-## Adding a boat
+### One-time setup on your phone (about 5 minutes)
 
-Go to `https://YOUR-SITE/admin.html` (bookmark it on your phone), sign in, tap **+ Add a boat**,
-fill in the details, add photos (straight from your camera roll; they're shrunk automatically), and **Save**.
+1. **Make an access token.** On GitHub (signed in as `mitch060995`): *Settings* → *Developer settings* →
+   *Personal access tokens* → *Fine-grained tokens* → *Generate new token*.
+   - **Name:** `Boat listings`
+   - **Expiration:** the longest it allows (set a reminder to renew it)
+   - **Repository access:** *Only select repositories* → `BoatWebsite_Jake`
+   - **Permissions** → *Repository permissions* → **Contents: Read and write**
+   - Generate it and copy the token (starts with `github_pat_`). Treat it like a password.
+2. **Sign in.** Open `https://mitch060995.github.io/BoatWebsite_Jake/admin/`, tap **Sign In Using Access Token**,
+   paste the token. Your phone remembers it, so you only do this once per device.
+3. **Bookmark it** (or *Add to Home Screen*) so it's one tap away.
 
-- **Status** controls visibility: *Draft* is hidden; *For sale*, *Under offer* and *Sold* show on the site with a badge.
-- The **first photo** is the cover. Use ‹ › to reorder and ✕ to remove.
-- **Order on site**: lower numbers show first.
+Don't use *Sign In with GitHub*: that option needs an extra login server, which this setup avoids on purpose.
 
-## How it's kept private
+### Adding a boat (from your phone)
 
-- `admin.html` isn't linked from the site and asks search engines not to index it.
-- More importantly, the database only lets emails in the `admins` table add, edit or delete boats or photos, and
-  sign-ups are switched off. Visitors (and anyone who finds the admin page) can only read published boats.
+1. Open the editor → **Boats for sale** → tap **Add Boat**.
+2. Fill in the title and details, then under **Photos** tap to add pictures from your camera roll.
+   They're shrunk and converted to WebP automatically. The first photo is the cover.
+3. Set **Status** (*Draft* is hidden; *For sale*, *Under offer* and *Sold* show with a badge) and tap **Save**.
+4. The site updates about a minute later (GitHub Pages rebuilds after each save).
+
+To mark a boat sold or take it down, open it, change the status (or delete it) and save.
+
+### How it's kept private
+
+- `/admin/` isn't linked from the site and asks search engines not to index it.
+- Anyone who finds it can't change anything: saving needs a token with write access to this repo, and only you
+  can create one.
+- If a phone is lost, delete the token on GitHub (*Fine-grained tokens* → *Delete*) and make a new one.
 
 ## Good to know
 
-- **Staying free (no pausing):** Supabase pauses free projects after a week with no activity. The GitHub Action in
-  `.github/workflows/keep-supabase-awake.yml` checks the listings every 3 days so that never happens; it costs nothing
-  and needs no setup. GitHub switches off scheduled jobs in repos with no commits for 60 days and emails you first:
-  if that email arrives, open the repo's *Actions* tab and click *Enable workflow*. If the boats section ever does
-  disappear, open the Supabase dashboard and click *Restore project*.
-- **Contact form:** still shows a thank-you message only; connect it to a form service (e.g. Web3Forms or Formspree) so
-  messages reach your inbox.
+- **Contact form:** still shows a thank-you message only; connect it to a form service (e.g. Web3Forms or Formspree)
+  so messages reach your inbox.

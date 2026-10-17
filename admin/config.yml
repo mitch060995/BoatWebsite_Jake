@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms@0.227.2/schema/sveltia-cms.json
+# Listings editor for Fraser Marine Sales.
+# Sign in on /admin/ with "Sign In with Token" (a GitHub personal access token for this repo).
+
+backend:
+  name: github
+  repo: mitch060995/BoatWebsite_Jake
+  branch: main
+
+site_url: https://mitch060995.github.io/BoatWebsite_Jake/
+
+media_folder: /images/boats
+public_folder: /images/boats
+
+# Phone photos are shrunk and converted to WebP before they're committed
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 2000
+          height: 2000
+
+collections:
+  - name: listings
+    label: Boats for sale
+    files:
+      - name: boats
+        label: Boats for sale
+        file: data/boats.json
+        fields:
+          - name: boats
+            label: Boats
+            label_singular: Boat
+            widget: list
+            root: true
+            add_to_top: true
+            collapsed: auto
+            summary: '{{title}} ({{status}})'
+            fields:
+              - { name: title, label: Title, widget: string, hint: 'e.g. 1990 Fraser 737 Hardtop' }
+              - name: status
+                label: Status
+                widget: select
+                default: for_sale
+                hint: Drafts are hidden from the website
+                options:
+                  - { label: 'Draft (hidden)', value: draft }
+                  - { label: 'For sale', value: for_sale }
+                  - { label: 'Under offer', value: under_offer }
+                  - { label: 'Sold', value: sold }
+              - { name: photos, label: Photos, widget: image, multiple: true, required: false, hint: 'The first photo is the cover. Drag to reorder.' }
+              - { name: price, label: 'Price (AUD)', widget: number, value_type: int, min: 0, required: false, hint: 'Leave blank for POA' }
+              - { name: price_label, label: 'Price wording', widget: string, required: false, hint: 'Optional, e.g. Offers over' }
+              - { name: year, label: Year, widget: number, value_type: int, required: false }
+              - { name: make, label: Make, widget: string, required: false }
+              - { name: model, label: Model, widget: string, required: false }
+              - { name: length_m, label: 'Length (m)', widget: number, value_type: float, step: 0.01, required: false }
+              - { name: engine, label: Engine, widget: string, required: false }
+              - { name: engine_hours, label: 'Engine hours', widget: number, value_type: int, required: false }
+              - { name: location, label: Location, widget: string, required: false }
+              - { name: description, label: Description, widget: text, required: false }

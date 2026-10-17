@@ -1,12 +1,9 @@
 /* =========================================================
-   Boats for sale: read the published listings from Supabase
-   and show them. The section (and its nav link) stays hidden
-   until there's at least one boat to show.
+   Boats for sale: read data/boats.json (edited on /admin/ and
+   committed to this repo) and show the published boats. The
+   section and its nav link stay hidden until there's a boat.
    ========================================================= */
 (() => {
-  const cfg = window.FRASER_CONFIG || {};
-  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey) return;
-
   const $ = s => document.querySelector(s);
   const section = $('#boats'), grid = $('#boatGrid'), navLink = $('#navBoats');
   const dlg = $('#boatDialog');
@@ -16,7 +13,7 @@
   const STATUS = { for_sale: 'For sale', under_offer: 'Under offer', sold: 'Sold' };
 
   const priceText = b => {
-    if (b.price != null && b.price !== '') return [b.price_label, money(b.price)].filter(Boolean).join(' ');
+    if (has(b.price)) return [b.price_label, money(b.price)].filter(Boolean).join(' ');
     return b.price_label || 'Price on application';
   };
   const specList = b => [
@@ -25,10 +22,16 @@
     b.engine,
   ].filter(Boolean);
 
-  const url = `${cfg.supabaseUrl.replace(/\/$/, '')}/rest/v1/listings?select=*&status=neq.draft&order=sort.asc,created_at.desc`;
-  fetch(url, { headers: { apikey: cfg.supabaseAnonKey } })
+  // Photo paths are saved as /images/boats/...; resolve them against the site's own address so they
+  // work both on GitHub Pages (/BoatWebsite_Jake/) and on a custom domain
+  const asset = p => new URL(String(p).replace(/^\//, ''), document.baseURI).href;
+  const has = v => v !== null && v !== undefined && v !== '';
+
+  fetch('data/boats.json', { cache: 'no-cache' })
     .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-    .then(render)
+    .then(rows => render((Array.isArray(rows) ? rows : [])
+      .filter(b => b && b.title && b.status && b.status !== 'draft')
+      .map(b => ({ ...b, photos: (Array.isArray(b.photos) ? b.photos : [b.photos]).filter(Boolean).map(asset) }))))
     .catch(err => console.warn('Listings unavailable:', err));
 
   let boats = [];
@@ -79,7 +82,7 @@
       ['Make', b.make], ['Model', b.model], ['Year', b.year],
       ['Length', b.length_m && `${+b.length_m} m`], ['Engine', b.engine],
       ['Engine hours', b.engine_hours], ['Location', b.location],
-    ].filter(r => r[1] !== null && r[1] !== undefined && r[1] !== '');
+    ].filter(r => has(r[1]));
     $('#bdSpecs').innerHTML = rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
     $('#bdDesc').textContent = b.description || '';
     $('#bdEnquire').hidden = b.status === 'sold';
