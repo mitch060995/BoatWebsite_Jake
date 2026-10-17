@@ -26,12 +26,23 @@
   const asset = p => new URL(String(p).replace(/^\//, ''), document.baseURI).href;
   const has = v => v !== null && v !== undefined && v !== '';
 
+  const publish = rows => render((Array.isArray(rows) ? rows : [])
+    .filter(b => b && b.title && b.status && b.status !== 'draft')
+    .sort((a, b) => (a.sort || 0) - (b.sort || 0) || String(b.created_at).localeCompare(String(a.created_at)))
+    .map(b => ({ ...b, photos: (Array.isArray(b.photos) ? b.photos : [b.photos]).filter(Boolean).map(asset) })));
+
   fetch('api/boats', { cache: 'no-cache' })
-    .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
-    .then(rows => render((Array.isArray(rows) ? rows : [])
-      .filter(b => b && b.title && b.status && b.status !== 'draft')
-      .map(b => ({ ...b, photos: (Array.isArray(b.photos) ? b.photos : [b.photos]).filter(Boolean).map(asset) }))))
-    .catch(err => console.warn('Listings unavailable:', err));
+    .then(r => ((r.headers.get('content-type') || '').includes('application/json') ? r.json() : Promise.reject(r.status)))
+    .then(publish)
+    .catch(() => {
+      // No server here (e.g. GitHub Pages preview): show boats added in the admin's demo mode on this device
+      let demo = [];
+      try { demo = JSON.parse(localStorage.getItem('fms-demo-boats')) || []; } catch { /* storage blocked */ }
+      if (!demo.length) return;
+      const eyebrow = section.querySelector('.eyebrow');
+      if (eyebrow) eyebrow.textContent = 'For sale · demo preview, only visible on this device';
+      publish(demo);
+    });
 
   let boats = [];
   function render(rows) {

@@ -89,5 +89,6 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--s
   .row .btn { grid-column: 1 / -1; }
 }
 .hint { margin: 0; color: var(--muted); font-size: .85rem; }
+.demo-banner { margin: 0 0 1.2rem; padding: .8rem 1rem; border-radius: 12px; background: #fbeacd; color: #6b4510; font-size: .9rem; }
 .bar .link { white-space: nowrap; }
 @media (max-width: 400px) { .brand small { display: none; } .bar-actions { gap: .8rem; } }

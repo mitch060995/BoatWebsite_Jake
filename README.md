@@ -47,6 +47,14 @@ phone or computer that was logged in.
 **Status:** *Draft* is hidden; *For sale*, *Under offer* and *Sold* show on the site with a badge.
 To take a boat down, change its status to Draft or tap **Delete boat** (tap twice to confirm).
 
+## Demo mode (before Cloudflare is set up)
+
+On a host without the Cloudflare functions (like the GitHub Pages preview,
+`https://mitch060995.github.io/BoatWebsite_Jake/admin/`), the admin page switches to **demo mode** by itself:
+sign in with the password `demo`, add boats and photos, then open the site on the same phone to see them under
+"Boats for sale". Everything is kept in that phone's browser only; nobody else sees it, and it disappears if the
+browser's data is cleared. On Cloudflare the real server is found and demo mode never appears.
+
 ## How it's kept private
 
 - `/admin/` isn't linked from the site and asks search engines not to index it.

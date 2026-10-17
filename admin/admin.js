@@ -11,10 +11,12 @@
   const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const money = n => new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD', maximumFractionDigits: 0 }).format(n);
   const STATUS = { draft: 'Draft', for_sale: 'For sale', under_offer: 'Under offer', sold: 'Sold' };
-  const photoUrl = path => `/${path}`;
+  const photoUrl = path => (path.startsWith('data:') ? path : `/${path}`);
+  let demo = false;   // true when there's no server (e.g. GitHub Pages): everything is kept on this device
 
   class SignedOut extends Error {}
   async function api(path, opts = {}) {
+    if (demo) return demoApi(path, opts);
     const res = await fetch(`/api/${path}`, { credentials: 'same-origin', ...opts });
     if (res.status === 401 && path !== 'login') { show('loginView'); $('#signOut').hidden = true; throw new SignedOut(); }
     const isJson = (res.headers.get('content-type') || '').includes('application/json');
@@ -26,11 +28,17 @@
   /* ---------------- start ---------------- */
   (async () => {
     try {
-      const s = await api('session');
+      const res = await fetch('/api/session', { credentials: 'same-origin' });
+      const isJson = (res.headers.get('content-type') || '').includes('application/json');
+      if (!isJson) throw new Error('no server');
+      const s = await res.json();
       if (!s.ready) { $('#setupMsg').textContent = 'The password or storage hasn’t been set up in Cloudflare yet.'; show('setupView'); return; }
       if (s.admin) enter(); else show('loginView');
     } catch {
-      show('setupView');
+      demo = true;
+      $('#demoBanner').hidden = false;
+      $('.hint').hidden = true;
+      if ((await demoApi('session')).admin) enter(); else show('loginView');
     }
   })();
 
@@ -53,10 +61,57 @@
   });
 
   $('#signOut').addEventListener('click', async () => {
-    await fetch('/api/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
+    await api('logout', { method: 'POST' }).catch(() => {});
     $('#signOut').hidden = true;
     show('loginView');
   });
+
+  /* ---------------- demo mode: a pretend server that keeps everything in this browser ---------------- */
+  const DEMO_KEY = 'fms-demo-boats';
+  const readDemo = () => { try { return JSON.parse(localStorage.getItem(DEMO_KEY)) || []; } catch { return []; } };
+  const writeDemo = boats => {
+    try { localStorage.setItem(DEMO_KEY, JSON.stringify(boats)); }
+    catch { throw new Error('This device’s demo storage is full. Remove some photos or boats and try again.'); }
+  };
+  const blobToDataUrl = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+  const STATUS_KEYS = Object.keys(STATUS);
+  async function demoApi(path, opts = {}) {
+    const method = opts.method || 'GET';
+    const signedIn = () => { try { return sessionStorage.getItem('fms-demo-session') === '1'; } catch { return false; } };
+    if (path === 'session') return { admin: signedIn(), ready: true, demo: true };
+    if (path === 'login') {
+      if (JSON.parse(opts.body || '{}').password !== 'demo') throw new Error('In demo mode the password is “demo”.');
+      try { sessionStorage.setItem('fms-demo-session', '1'); } catch { /* private mode */ }
+      return { ok: true };
+    }
+    if (path === 'logout') { try { sessionStorage.removeItem('fms-demo-session'); } catch { /* ignore */ } return { ok: true }; }
+    if (!signedIn()) { show('loginView'); $('#signOut').hidden = true; throw new SignedOut(); }
+
+    const boats = readDemo();
+    if (path.startsWith('boats?')) return [...boats].sort((a, b) => (a.sort || 0) - (b.sort || 0) || String(b.created_at).localeCompare(String(a.created_at)));
+    if (path === 'photos') return { path: await blobToDataUrl(opts.body) };
+    if (path === 'boats' && method === 'POST') {
+      const input = JSON.parse(opts.body);
+      if (!input.title) throw new Error('Every boat needs a title.');
+      const n = v => (v === '' || v == null || !Number.isFinite(+v) ? null : +v);
+      const now = new Date().toISOString();
+      const old = boats.find(b => b.id === input.id);
+      const saved = {
+        ...input,
+        status: STATUS_KEYS.includes(input.status) ? input.status : 'draft',
+        price: n(input.price), year: n(input.year), length_m: n(input.length_m), engine_hours: n(input.engine_hours), sort: n(input.sort) || 0,
+        id: old?.id || crypto.randomUUID(), created_at: old?.created_at || now, updated_at: now,
+      };
+      writeDemo(old ? boats.map(b => (b.id === old.id ? saved : b)) : [...boats, saved]);
+      return saved;
+    }
+    if (path.startsWith('boats/') && method === 'DELETE') {
+      const id = decodeURIComponent(path.slice('boats/'.length));
+      writeDemo(boats.filter(b => b.id !== id));
+      return { ok: true };
+    }
+    throw new Error('Not available in demo mode.');
+  }
 
   /* ---------------- list ---------------- */
   let listings = [];
@@ -145,11 +200,11 @@
   async function shrink(file) {
     try {
       const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-      const k = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+      const k = Math.min(1, (demo ? 1000 : 2000) / Math.max(bmp.width, bmp.height));
       const c = document.createElement('canvas');
       c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
       c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
-      const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.85));
+      const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', demo ? 0.72 : 0.85));
       if (blob) return blob;
     } catch { /* fall through */ }
     if (['image/jpeg', 'image/webp', 'image/png'].includes(file.type)) return file;
@@ -184,7 +239,8 @@
       renderPhotos();
       $('#editTitle').textContent = 'Edit boat';
       $('#deleteBtn').hidden = false;
-      say($('#editMsg'), editing.status === 'draft' ? 'Saved as a draft (not shown on the site).' : 'Saved. It’s live on the site.', 'ok');
+      say($('#editMsg'), editing.status === 'draft' ? 'Saved as a draft (not shown on the site).'
+        : demo ? 'Saved. Open the site on this device to see it (demo: only you can see it).' : 'Saved. It’s live on the site.', 'ok');
     } catch (err) {
       if (!(err instanceof SignedOut)) say($('#editMsg'), err.message || 'Something went wrong. Try again.', 'error');
       renderPhotos();
