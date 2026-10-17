@@ -114,6 +114,13 @@ h2 .shine, .footer-line .shine { padding-right: .08em; } /* keep italic overhang
   color: var(--cream);
   transition: background .35s, box-shadow .35s, padding .35s;
 }
+/* Over the bright hero sky: a soft shade behind the links so they stay readable; gone once the bar turns solid */
+.nav::before {
+  content: ""; position: absolute; inset: 0 0 -70% 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(to bottom, rgba(4,16,24,.5), rgba(4,16,24,.32) 55%, rgba(4,16,24,0));
+  transition: opacity .35s;
+}
+.nav.solid::before { opacity: 0; }
 .nav.solid {
   background: rgba(6,29,43,.82); backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
   box-shadow: 0 1px 0 rgba(244,235,221,.08), 0 10px 30px rgba(0,0,0,.18); padding-block: .75rem;

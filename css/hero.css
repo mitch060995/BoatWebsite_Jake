@@ -20,10 +20,22 @@
   background: radial-gradient(ellipse at 50% 42%, rgba(6,22,34,.25), rgba(6,22,34,.72) 75%);
 }
 
+/* Legibility pools: a soft, blurred navy shade tucked behind each block of text.
+   Each one lives inside its text block, so it moves and fades with it (hero.js drives
+   the parent's opacity/transform) and the scene stays bright everywhere else.
+   Tuned so cream and gold text clear WCAG 1.4.3 even over the white hull, the haze and the sun. */
+.hero-intro::before, .hud::before, .scroll-hint::before, .hero-copy::before, .logo-wrap::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  inset: var(--pool-inset, -2.5rem);
+  background: rgba(4,16,24,var(--pool, .7));
+  filter: blur(var(--pool-blur, 32px));
+}
+
 /* Opening title (bottom left, fades as you start scrolling) */
 .hero-intro {
   position: absolute; z-index: 3; left: clamp(1rem, 5vw, 4rem); bottom: clamp(7.5rem, 17svh, 11rem);
   max-width: min(36rem, 88vw); color: var(--cream); will-change: opacity, transform;
+  --pool: .58; --pool-inset: -3rem -3.5rem -3rem -3rem; --pool-blur: 40px;
 }
 .hero-eyebrow {
   margin: 0 0 1rem; font: 700 .75rem/1 var(--sans); letter-spacing: .32em; text-transform: uppercase; color: var(--cream); text-shadow: 0 1px 10px rgba(4,16,24,.5);
@@ -37,6 +49,8 @@
 .hero-title em, .hero-copy h1 em { font-style: italic; color: var(--gold); padding-right: .06em; }
 .hero-intro > * { opacity: 0; transform: translateY(24px); animation: heroIn 1.2s cubic-bezier(.2,.7,.2,1) forwards; }
 .hero-intro > :nth-child(2) { animation-delay: .25s; }
+.hero-intro::before { opacity: 0; animation: poolIn 1.4s ease forwards; }
+@keyframes poolIn { to { opacity: 1; } }
 @keyframes heroIn { to { opacity: 1; transform: none; } }
 
 /* Drone HUD (bottom right) */
@@ -44,6 +58,7 @@
   position: absolute; z-index: 3; right: clamp(1rem, 4vw, 3rem); bottom: clamp(1.4rem, 5svh, 3rem);
   width: 14rem; color: rgba(244,235,221,.85); font: 600 .7rem/1 var(--sans); letter-spacing: .18em; text-transform: uppercase;
   display: grid; gap: .7rem; will-change: opacity; opacity: 0;
+  --pool: .6; --pool-inset: -1.6rem -1.8rem; --pool-blur: 24px;
 }
 .hud-row { display: flex; align-items: center; gap: .6rem; }
 .hud-data { justify-content: space-between; letter-spacing: .14em; color: rgba(244,235,221,.6); font-variant-numeric: tabular-nums; }
@@ -58,8 +73,9 @@
   position: absolute; z-index: 3; left: 50%; top: 38%; transform: translate(-50%, -50%);
   display: grid; justify-items: center; gap: clamp(.6rem, 1.6vh, 1rem);
   color: var(--cream); pointer-events: none; width: min(92vw, 40rem);
-  --l: 0;
+  --l: 0; --pool: .5; --pool-inset: -2rem -4rem; --pool-blur: 64px;
 }
+.logo-wrap::before { opacity: min(1, calc(var(--l) * 2)); } /* shade lands ahead of the letters, so the half-formed logo is already readable */
 .logo-mark { width: clamp(64px, 11vh, 104px); height: auto; overflow: visible; }
 .logo-mark .ring { fill: none; stroke: var(--gold); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--l)); transform: rotate(-90deg); transform-origin: center; }
 .logo-mark .ring-in { stroke: rgba(244,235,221,.55); stroke-width: 1; }
@@ -85,6 +101,7 @@
   position: absolute; left: 50%; bottom: 7svh; z-index: 4; width: min(640px, 92vw);
   transform: translateX(-50%); text-align: center; color: var(--cream);
   opacity: 0; pointer-events: none;
+  --pool: .5; --pool-inset: -2.5rem -3rem; --pool-blur: 40px;
 }
 .hero-copy.live { pointer-events: auto; }
 .hero-copy h1 { font-size: clamp(1.9rem, 4.6vw, 3.2rem); margin-bottom: .3em; }
@@ -93,7 +110,8 @@
 
 .scroll-hint {
   position: absolute; left: 50%; bottom: 4svh; z-index: 4; transform: translateX(-50%);
-  color: var(--cream); text-align: center; font-size: .72rem; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--cream); text-align: center; font-size: .72rem; font-weight: 700; letter-spacing: .25em; text-transform: uppercase;
+  --pool: .4; --pool-inset: -1.2rem -2.2rem; --pool-blur: 24px;
 }
 .scroll-hint i {
   display: block; width: 22px; height: 36px; margin: .7rem auto 0;
@@ -109,6 +127,7 @@
   .hero-intro { bottom: 9.5rem; }
   .hud { left: 1rem; right: auto; width: calc(100% - 2rem); bottom: 6.2rem; }
   .scroll-hint { bottom: 1.2rem; }
+  .logo-wrap { --pool: .64; } /* the small "Marine Sales" line needs a touch more shade on phones */
 }
 
 /* 3D couldn't start (old device / offline): keep the gradient backdrop, show the logo and copy */
@@ -120,5 +139,5 @@
 @media (prefers-reduced-motion: reduce) {
   .hero { height: 100vh; height: 100svh; }
   .scroll-hint, .hud, .hero-intro { display: none; }
-  .hero-intro > * { animation: none; opacity: 1; transform: none; }
+  .hero-intro > *, .hero-intro::before { animation: none; opacity: 1; transform: none; }
 }
