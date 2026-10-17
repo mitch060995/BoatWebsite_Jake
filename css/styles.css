@@ -271,6 +271,55 @@ main > section { padding: clamp(4rem, 9vw, 7.5rem) clamp(1rem, 5vw, 4rem); posit
 .card-foot a span { transition: transform .35s var(--ease-out); }
 .card-foot a:hover span { transform: translateX(4px); }
 
+/* ---------- Boats for sale (live listings) ---------- */
+.boats { background: var(--sand); padding-top: clamp(1rem, 4vw, 3rem); }
+.boats[hidden], .nav-links a[hidden] { display: none !important; }
+.listing { animation: listingIn .9s var(--ease-out) both; animation-delay: calc(var(--n, 0) * .08s); }
+@keyframes listingIn { from { opacity: 0; transform: translateY(32px); } }
+.listing-open { all: unset; display: block; box-sizing: border-box; width: 100%; height: 100%; cursor: pointer; text-align: left; }
+.listing-open:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; border-radius: var(--radius); }
+.card-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease-out); }
+.card-inner:hover .card-art img { transform: scale(1.05); }
+.listing-nophoto { position: absolute; inset: 0; display: grid; place-items: center; background: linear-gradient(160deg, var(--foam), var(--cream)); color: var(--muted); font-size: .9rem; }
+.listing-more { font-weight: 700; font-size: .9rem; color: var(--sea); display: inline-flex; gap: .35rem; }
+.listing-more span { transition: transform .35s var(--ease-out); }
+.card-inner:hover .listing-more span { transform: translateX(4px); }
+.tag-under_offer { background: var(--gold); color: var(--navy); }
+.tag-sold { background: var(--navy); color: var(--cream); }
+
+html.dialog-open { overflow: hidden; }
+.boat-dialog {
+  width: min(960px, calc(100vw - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 0;
+  border-radius: var(--radius); background: #fff; color: var(--ink); overflow: auto;
+  box-shadow: 0 40px 120px rgba(4,16,24,.45);
+}
+.boat-dialog[open] { display: grid; grid-template-columns: 1.15fr 1fr; animation: dlgIn .45s var(--ease-out); }
+.boat-dialog::backdrop { background: rgba(6,29,43,.7); backdrop-filter: blur(4px); }
+@keyframes dlgIn { from { opacity: 0; transform: translateY(24px) scale(.98); } }
+.bd-close {
+  position: absolute; top: .7rem; right: .7rem; z-index: 2; width: 2.4rem; height: 2.4rem; border-radius: 50%;
+  border: 0; background: rgba(255,255,255,.92); color: var(--ink); font-size: 1.6rem; line-height: 1; cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,.15);
+}
+.bd-gallery { background: var(--navy); display: grid; align-content: start; min-width: 0; }
+.bd-main { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+.bd-thumbs { display: flex; gap: .4rem; padding: .5rem; overflow-x: auto; }
+.bd-thumbs button { flex: 0 0 auto; width: 72px; aspect-ratio: 4/3; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; cursor: pointer; background: none; opacity: .65; }
+.bd-thumbs button[aria-current] { border-color: var(--gold); opacity: 1; }
+.bd-thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bd-body { padding: clamp(1.3rem, 3vw, 2.2rem); display: grid; align-content: start; gap: .8rem; min-width: 0; }
+.bd-status { justify-self: start; margin: 0; font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .3rem .7rem; border-radius: 999px; background: var(--foam); color: var(--sea); }
+.bd-body h2 { font-size: clamp(1.7rem, 3.4vw, 2.4rem); margin: 0; }
+.bd-price { margin: 0; font-weight: 700; font-size: 1.25rem; }
+.bd-specs { display: grid; grid-template-columns: auto 1fr; gap: .45rem 1.2rem; margin: .4rem 0; padding: 1rem 0; border-block: 1px solid rgba(11,27,38,.08); font-size: .95rem; }
+.bd-specs dt { color: var(--muted); }
+.bd-specs dd { margin: 0; font-weight: 600; }
+.bd-desc { margin: 0; color: var(--muted); white-space: pre-line; }
+.bd-body .btn { justify-self: start; margin-top: .4rem; }
+@media (max-width: 760px) {
+  .boat-dialog[open] { grid-template-columns: 1fr; }
+}
+
 /* ---------- Services ---------- */
 .services { background: var(--navy); color: var(--cream); }
 .services .section-head h2 { max-width: 20ch; }

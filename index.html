@@ -26,6 +26,7 @@
     <a class="nav-brand" href="#top" aria-label="Fraser Marine Sales — back to top">Fraser <em>Marine</em></a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span></button>
     <nav class="nav-links" id="navLinks" aria-label="Main">
+      <a href="#boats" id="navBoats" style="--i:0" hidden>Boats for sale</a>
       <a href="#services" style="--i:0">Services</a>
       <a href="#sell" style="--i:1">Valuations</a>
       <a href="#about" style="--i:2">My story</a>
@@ -97,6 +98,14 @@
         </div>
       </div>
     </div>
+
+    <section class="boats" id="boats" hidden aria-labelledby="boatsTitle">
+      <div class="section-head">
+        <p class="eyebrow">For sale</p>
+        <h2 id="boatsTitle">Boats I'm <em class="it">selling</em></h2>
+      </div>
+      <div class="boat-grid" id="boatGrid"></div>
+    </section>
 
     <div class="wave" data-wave style="--from:var(--sand);--to:var(--navy)" aria-hidden="true"></div>
 
@@ -333,6 +342,22 @@
     <div class="wave" data-wave style="--from:var(--cream);--to:var(--navy)" aria-hidden="true"></div>
   </main>
 
+  <dialog class="boat-dialog" id="boatDialog" aria-labelledby="bdTitle">
+    <button class="bd-close" type="button" id="bdClose" aria-label="Close">&times;</button>
+    <div class="bd-gallery">
+      <img class="bd-main" id="bdMain" alt="">
+      <div class="bd-thumbs" id="bdThumbs"></div>
+    </div>
+    <div class="bd-body">
+      <p class="bd-status" id="bdStatus"></p>
+      <h2 id="bdTitle"></h2>
+      <p class="bd-price" id="bdPrice"></p>
+      <dl class="bd-specs" id="bdSpecs"></dl>
+      <p class="bd-desc" id="bdDesc"></p>
+      <button class="btn btn-gold" type="button" id="bdEnquire"><span class="btn-label">Enquire about this boat <span class="btn-arrow" aria-hidden="true">→</span></span></button>
+    </div>
+  </dialog>
+
   <footer class="footer">
     <div class="footer-top">
       <p class="footer-line">Let's get you <em class="shine">on the water.</em></p>
@@ -353,5 +378,7 @@
     setTimeout(function () { var s = document.getElementById('heroStage'); if (!s.classList.contains('ready')) s.classList.add('no-3d'); }, 7000);
   </script>
   <script src="js/site.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/listings.js"></script>
 </body>
 </html>
