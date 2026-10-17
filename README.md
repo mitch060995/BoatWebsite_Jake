@@ -1,61 +1,76 @@
 # Fraser Marine Sales — website
 
-Plain HTML/CSS/JS, no build step and no outside services. Hosts on GitHub Pages or Cloudflare Pages as-is.
+Plain HTML/CSS/JS with no build step, hosted on **Cloudflare Pages**. The boat listings use Cloudflare's own
+Pages Functions and KV storage (both on the free plan), so there's no other service to sign up for.
 
 ```
-index.html          the public site
-admin/              your private listings editor (Sveltia CMS, not linked anywhere)
-  index.html
-  config.yml        which fields a boat has, where photos go
-data/boats.json     the boats for sale (written by the editor)
-images/boats/       boat photos (uploaded by the editor)
-css/                styles (styles.css site, hero.css 3D opener)
-js/hero.js          3D drone-shot opener (three.js)
-js/site.js          page animations, menu, contact form
-js/listings.js      "Boats for sale" section, reads data/boats.json
+index.html              the public site
+admin/                  the owner's listings page (password login, not linked anywhere)
+functions/              server code Cloudflare runs for /api/* and /photos/*
+  api/login.js          password check (locks an address out for 15 min after 8 wrong tries)
+  api/boats/            list, save and delete boats
+  api/photos/           photo uploads
+  photos/[id].js        serves photos
+server/lib.js           shared helpers (sessions, validation, storage)
+css/  js/               site styles and scripts (hero.js = 3D opener, listings.js = Boats for sale)
 ```
 
-## Boats for sale
+## One-time Cloudflare setup (website manager, about 15 minutes)
 
-Listings live in this GitHub repo: the editor saves them to `data/boats.json` and the photos to `images/boats/`.
-No database or extra account is needed, just your GitHub login. The editor is
-[Sveltia CMS](https://github.com/sveltia/sveltia-cms) (free, MIT licence), loaded from a CDN.
+1. **Create the site.** Cloudflare dashboard → *Workers & Pages* → *Create* → *Pages* → *Connect to Git* →
+   pick `BoatWebsite_Jake`. Framework preset: *None*. Build command: *(leave empty)*. Build output directory: `/`.
+   Click *Save and Deploy*.
+2. **Create the storage.** *Storage & Databases* → *KV* → *Create* → name it `fraser-listings`.
+3. **Connect the storage to the site.** Your Pages project → *Settings* → *Bindings* → *Add* → *KV namespace*:
+   variable name **`LISTINGS`**, namespace `fraser-listings`. Save.
+4. **Set the owner's password.** Your Pages project → *Settings* → *Variables and Secrets* → *Add*:
+   type **Secret**, name **`ADMIN_PASSWORD`**, value = a strong password for the owner. Save.
+5. **Apply it.** *Deployments* → the latest deployment → *⋯* → *Retry deployment* (settings only take effect on the
+   next deploy).
+6. **Custom domain** (when ready): your Pages project → *Custom domains* → *Set up a domain* →
+   `yourdomain.com.au`. If the domain's nameservers already point to Cloudflare it connects automatically.
+7. **Hand over to the owner:** the address `https://yourdomain.com.au/admin/` and the password. That's all they need.
 
-The "Boats for sale" section and its menu link only appear once at least one boat is listed (not a draft).
+### Changing the owner's password
 
-### One-time setup on your phone (about 5 minutes)
+Edit the `ADMIN_PASSWORD` secret (step 4) and retry the latest deployment (step 5). This also signs out any
+phone or computer that was logged in.
 
-1. **Make an access token.** On GitHub (signed in as `mitch060995`): *Settings* → *Developer settings* →
-   *Personal access tokens* → *Fine-grained tokens* → *Generate new token*.
-   - **Name:** `Boat listings`
-   - **Expiration:** the longest it allows (set a reminder to renew it)
-   - **Repository access:** *Only select repositories* → `BoatWebsite_Jake`
-   - **Permissions** → *Repository permissions* → **Contents: Read and write**
-   - Generate it and copy the token (starts with `github_pat_`). Treat it like a password.
-2. **Sign in.** Open `https://mitch060995.github.io/BoatWebsite_Jake/admin/`, tap **Sign In Using Access Token**,
-   paste the token. Your phone remembers it, so you only do this once per device.
-3. **Bookmark it** (or *Add to Home Screen*) so it's one tap away.
+## For the owner: adding a boat from your phone
 
-Don't use *Sign In with GitHub*: that option needs an extra login server, which this setup avoids on purpose.
+1. Open **yourdomain.com.au/admin/** (save it to your home screen) and sign in with your password. You stay signed
+   in on that phone for 30 days.
+2. Tap **+ Add a boat**, fill in the details, tap **+ Add photos** to pick pictures from your camera roll, and tap
+   **Save boat**. Photos are shrunk automatically; the first one is the cover (‹ › to reorder, ✕ to remove).
+3. It's live on the site straight away.
 
-### Adding a boat (from your phone)
+**Status:** *Draft* is hidden; *For sale*, *Under offer* and *Sold* show on the site with a badge.
+To take a boat down, change its status to Draft or tap **Delete boat** (tap twice to confirm).
 
-1. Open the editor → **Boats for sale** → tap **Add Boat**.
-2. Fill in the title and details, then under **Photos** tap to add pictures from your camera roll.
-   They're shrunk and converted to WebP automatically. The first photo is the cover.
-3. Set **Status** (*Draft* is hidden; *For sale*, *Under offer* and *Sold* show with a badge) and tap **Save**.
-4. The site updates about a minute later (GitHub Pages rebuilds after each save).
-
-To mark a boat sold or take it down, open it, change the status (or delete it) and save.
-
-### How it's kept private
+## How it's kept private
 
 - `/admin/` isn't linked from the site and asks search engines not to index it.
-- Anyone who finds it can't change anything: saving needs a token with write access to this repo, and only you
-  can create one.
-- If a phone is lost, delete the token on GitHub (*Fine-grained tokens* → *Delete*) and make a new one.
+- Every change is checked on the server: it needs the owner's login cookie (signed with the password, valid
+  30 days, HttpOnly, SameSite=Strict) and has to come from the site itself. Visitors can only read published boats.
+- Wrong passwords are rate-limited: 8 tries per address, then a 15-minute lockout.
 
-## Good to know
+## Free plan limits (Cloudflare)
 
-- **Contact form:** still shows a thank-you message only; connect it to a form service (e.g. Web3Forms or Formspree)
-  so messages reach your inbox.
+KV storage on the free plan allows around 1 GB of data, 100,000 reads and 1,000 writes a day, and Pages Functions
+around 100,000 requests a day: far more than a boat dealer needs. Photos are cached by visitors' browsers and
+Cloudflare's network, so repeat views barely touch these limits. No credit card is required.
+
+## Running it locally
+
+```
+npx wrangler pages dev . --kv LISTINGS --binding ADMIN_PASSWORD=test-pass-123
+```
+
+Then open http://localhost:8788 (site) and http://localhost:8788/admin/ (password `test-pass-123`).
+Local listings are stored in `.wrangler/` and never touch the live site.
+
+## Still to do
+
+- **Contact form:** shows a thank-you message only; connect it to a form service (e.g. Web3Forms or Formspree)
+  so messages reach the owner's inbox.
+- **Contact details:** the phone, email and address in the Contact section are placeholders.

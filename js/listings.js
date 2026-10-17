@@ -1,7 +1,7 @@
 /* =========================================================
-   Boats for sale: read data/boats.json (edited on /admin/ and
-   committed to this repo) and show the published boats. The
-   section and its nav link stay hidden until there's a boat.
+   Boats for sale: read the published boats from the site's own
+   /api/boats (Cloudflare Pages Functions, managed on /admin/).
+   The section and its nav link stay hidden until there's a boat.
    ========================================================= */
 (() => {
   const $ = s => document.querySelector(s);
@@ -22,12 +22,11 @@
     b.engine,
   ].filter(Boolean);
 
-  // Photo paths are saved as /images/boats/...; resolve them against the site's own address so they
-  // work both on GitHub Pages (/BoatWebsite_Jake/) and on a custom domain
+  // Photos are stored as "photos/<id>"; resolve against the site's address
   const asset = p => new URL(String(p).replace(/^\//, ''), document.baseURI).href;
   const has = v => v !== null && v !== undefined && v !== '';
 
-  fetch('data/boats.json', { cache: 'no-cache' })
+  fetch('api/boats', { cache: 'no-cache' })
     .then(r => (r.ok ? r.json() : Promise.reject(r.status)))
     .then(rows => render((Array.isArray(rows) ? rows : [])
       .filter(b => b && b.title && b.status && b.status !== 'draft')
