@@ -43,7 +43,10 @@ fill in the details, add photos (straight from your camera roll; they're shrunk 
 
 ## Good to know
 
-- **Free plan pausing:** Supabase pauses free projects after about a week with no activity. If the boats section ever
-  disappears, open the Supabase dashboard and *Restore* the project, or upgrade to the paid plan to stop it pausing.
+- **Staying free (no pausing):** Supabase pauses free projects after a week with no activity. The GitHub Action in
+  `.github/workflows/keep-supabase-awake.yml` checks the listings every 3 days so that never happens; it costs nothing
+  and needs no setup. GitHub switches off scheduled jobs in repos with no commits for 60 days and emails you first:
+  if that email arrives, open the repo's *Actions* tab and click *Enable workflow*. If the boats section ever does
+  disappear, open the Supabase dashboard and click *Restore project*.
 - **Contact form:** still shows a thank-you message only; connect it to a form service (e.g. Web3Forms or Formspree) so
   messages reach your inbox.
