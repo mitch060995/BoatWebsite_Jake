@@ -1,5 +1,5 @@
 /* ---------- Hero: 3D drone shot ---------- */
-.hero { position: relative; height: 240vh; background: var(--navy); }
+.hero { position: relative; height: 100vh; height: 100svh; background: var(--navy); }
 .hero-sticky {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   background: linear-gradient(to bottom, #8d9ea4 0%, #c9c8c3 40%, #d8d1ca 47%, #8a9a9c 50%, #4c6169 58%, #1b323d 100%);

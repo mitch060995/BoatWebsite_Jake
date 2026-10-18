@@ -169,9 +169,49 @@ function init() {
   resize();
   window.addEventListener('resize', resize);
 
+  // One scroll, swipe or arrow key starts the film; it then plays through to the logo by itself.
+  // The page is held still while it plays so the drone shot stays in view, then scrolls normally.
+  const PLAY_SECONDS = 6.5;
+  const play = { start: null, done: false };
   function progress() {
-    const total = hero.offsetHeight - window.innerHeight;
-    return total > 0 ? clamp(-hero.getBoundingClientRect().top / total, 0, 1) : 0;
+    if (play.done) return 1;
+    if (play.start === null) return 0;
+    const t = (performance.now() - play.start) / 1000 / PLAY_SECONDS;
+    if (t >= 1) play.done = true;
+    return Math.min(1, t);
+  }
+  const playing = () => play.start !== null && !play.done;
+  function startPlay() {
+    if (play.start === null && !play.done) play.start = performance.now();
+  }
+  function setupPlayback() {
+    // Arriving part-way down the page (e.g. a #services link): skip straight to the end
+    if (window.scrollY > window.innerHeight * 0.5) { play.done = true; return; }
+    const atTop = () => window.scrollY < 4;
+    const SCROLL_KEYS = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
+    window.addEventListener('wheel', e => {
+      if (playing()) { e.preventDefault(); return; }
+      if (!play.done && atTop() && e.deltaY > 0) { e.preventDefault(); startPlay(); }
+    }, { passive: false });
+    let touchY = null;
+    window.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
+    window.addEventListener('touchmove', e => {
+      if (playing()) { if (e.cancelable) e.preventDefault(); return; }
+      if (!play.done && atTop() && touchY !== null && touchY - e.touches[0].clientY > 8) {
+        if (e.cancelable) e.preventDefault();
+        startPlay();
+      }
+    }, { passive: false });
+    window.addEventListener('keydown', e => {
+      if (!SCROLL_KEYS.includes(e.key) || e.target.closest?.('input, textarea, select, button, a')) return;
+      if (playing()) { e.preventDefault(); return; }
+      if (!play.done && atTop()) { e.preventDefault(); startPlay(); }
+    });
+    // Anything else that moves the page (scrollbar drag, a nav link) also starts it, or skips it once the hero is passed
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > window.innerHeight * 0.6) play.done = true;
+      else if (window.scrollY > 0) startPlay();
+    }, { passive: true });
   }
 
   /* ---------------- camera path ---------------- */
@@ -201,9 +241,8 @@ function init() {
 
   function update(dt, p) {
     time += dt;
-    // glide after the scroll rather than snapping to it, and never faster than a cinematic pace:
-    // however hard the visitor swipes, the whole sequence takes at least ~3.5 s to play out
-    ps += clamp((p - ps) * (1 - Math.exp(-dt * 2.2)), -dt * 0.28, dt * 0.28);
+    // ease toward the playback position so starts and stops are soft
+    ps += (p - ps) * (1 - Math.exp(-dt * 4));
     intro = Math.min(1, intro + dt / 2.2);          // camera settles in on load
 
     const s = smooth(0, T.orbitEnd, ps);
@@ -290,6 +329,7 @@ function init() {
   }
 
   const go = () => {
+    setupPlayback();
     stage.classList.remove('no-3d');
     stage.classList.add('live');
     update(0, progress());
