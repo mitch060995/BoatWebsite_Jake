@@ -201,7 +201,7 @@ function init() {
 
   function update(dt, p) {
     time += dt;
-    ps += (p - ps) * (1 - Math.exp(-dt * 3.2));   // glide after the scroll rather than snapping to it
+    ps += (p - ps) * (1 - Math.exp(-dt * 2.2));   // glide after the scroll rather than snapping to it
     intro = Math.min(1, intro + dt / 2.2);          // camera settles in on load
 
     const s = smooth(0, T.orbitEnd, ps);
