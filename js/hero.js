@@ -201,7 +201,9 @@ function init() {
 
   function update(dt, p) {
     time += dt;
-    ps += (p - ps) * (1 - Math.exp(-dt * 2.2));   // glide after the scroll rather than snapping to it
+    // glide after the scroll rather than snapping to it, and never faster than a cinematic pace:
+    // however hard the visitor swipes, the whole sequence takes at least ~3.5 s to play out
+    ps += clamp((p - ps) * (1 - Math.exp(-dt * 2.2)), -dt * 0.28, dt * 0.28);
     intro = Math.min(1, intro + dt / 2.2);          // camera settles in on load
 
     const s = smooth(0, T.orbitEnd, ps);
