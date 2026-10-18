@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#061d2b"/>
-  <circle cx="32.5" cy="31.5" r="24" fill="none" stroke="#e0aa5a" stroke-width="2.6"/>
-  <g fill="#f4ebdd">
-    <path d="M24.5 45 L30.5 45 L35.3 17.5 L29.3 17.5 Z"/>
-    <path d="M28.6 15.5 L46.5 15.5 L45.6 21 L42.6 21 L42.4 19.6 L29.6 19.6 Z"/>
-    <path d="M27.7 28.6 L39.6 28.6 L39 32.4 L27.1 32.4 Z"/>
-    <path d="M20.6 47.2 L33.6 47.2 L34.1 44.2 L21.1 44.2 Z"/>
-  </g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="313 39 1307 1307"><rect x="313" y="39" width="1307" height="1307" rx="286" fill="#0b5d8c"/><polygon points="418,476 966,818 1516,433 966,1008" fill="#fff"/><polygon points="492,530 962,903 962,992 438,489" fill="#9fd5f1"/><polygon points="1486,459 972,824 972,898" fill="#9fd5f1"/><polygon points="1000,378 1318,378 1299,445 1063,445 1050,457 1038,518 1257,518 1240,583 1023,583 940,718 852,718" fill="#fff"/></svg>

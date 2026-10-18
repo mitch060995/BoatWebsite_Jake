@@ -9,12 +9,12 @@
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="manifest" href="site.webmanifest">
-  <meta name="theme-color" content="#061d2b">
+  <meta name="theme-color" content="#06304a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/hero.css">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,500;0,700;0,800;1,500;1,700;1,800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261018">
+  <link rel="stylesheet" href="css/hero.css?v=20261018">
   <script type="importmap">
   {
     "imports": {
@@ -25,10 +25,13 @@
   </script>
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="fmsMark" viewBox="410 370 1115 646"><polygon points="418,476 966,818 1516,433 966,1008" fill="currentColor"/><polygon points="492,530 962,903 962,992 438,489" fill="var(--mark-band, #9fd5f1)"/><polygon points="1486,459 972,824 972,898" fill="var(--mark-band, #9fd5f1)"/><polygon points="1000,378 1318,378 1299,445 1063,445 1050,457 1038,518 1257,518 1240,583 1023,583 940,718 852,718" fill="currentColor"/></symbol>
+  </svg>
   <div id="top"></div>
 
   <header class="nav" id="nav">
-    <a class="nav-brand" href="#top" aria-label="Fraser Marine Sales — back to top">Fraser <em>Marine</em></a>
+    <a class="nav-brand" href="#top" aria-label="Fraser Marine Sales — back to top"><svg class="brand-mark" aria-hidden="true"><use href="#fmsMark"/></svg><span class="brand-word">Fraser</span><span class="brand-sub">Marine Sales</span></a>
     <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span></button>
     <nav class="nav-links" id="navLinks" aria-label="Main">
       <a href="#boats" id="navBoats" style="--i:0" hidden>Boats for sale</a>
@@ -58,14 +61,9 @@
       </div>
 
       <div class="logo-wrap" id="logo" role="img" aria-label="Fraser Marine Sales">
-        <svg class="logo-mark" viewBox="0 0 120 120" aria-hidden="true">
-          <circle class="ring" cx="60" cy="60" r="54" pathLength="1"/>
-          <circle class="ring ring-in" cx="60" cy="60" r="46" pathLength="1"/>
-          <text x="60" y="76" text-anchor="middle" class="mark-f">F</text>
-          <path class="mark-wave" d="M30 90 q7.5 -6 15 0 t15 0 t15 0 t15 0" pathLength="1"/>
-        </svg>
+        <svg class="logo-mark" viewBox="410 370 1115 646" aria-hidden="true"><polygon class="v" points="418,476 966,818 1516,433 966,1008"/><polygon class="band" points="492,530 962,903 962,992 438,489"/><polygon class="band" points="1486,459 972,824 972,898"/><polygon class="f" points="1000,378 1318,378 1299,445 1063,445 1050,457 1038,518 1257,518 1240,583 1023,583 940,718 852,718"/></svg>
         <div class="logo-word" aria-hidden="true"><span>F</span><span>R</span><span>A</span><span>S</span><span>E</span><span>R</span></div>
-        <div class="logo-sub" aria-hidden="true"><i></i><span>Marine Sales</span><i></i></div>
+        <div class="logo-sub" aria-hidden="true"><span>Marine Sales</span></div>
       </div>
 
       <div class="hero-copy" id="heroCopy">
@@ -177,11 +175,11 @@
         </svg>
         <div class="sell-boat" id="sellBoat">
           <svg viewBox="0 0 200 80">
-            <g class="sell-wake" fill="none" stroke="#f4ebdd" stroke-linecap="round"><path d="M18 62 Q-10 60 -40 64" stroke-width="2" opacity=".55"/><path d="M22 67 Q-6 68 -30 72" stroke-width="1.5" opacity=".35"/></g>
+            <g class="sell-wake" fill="none" stroke="#cfe9f6" stroke-linecap="round"><path d="M18 62 Q-10 60 -40 64" stroke-width="2" opacity=".55"/><path d="M22 67 Q-6 68 -30 72" stroke-width="1.5" opacity=".35"/></g>
             <g class="sell-hull">
               <path d="M14 46 L178 40 Q192 40 186 50 L166 66 Q162 70 154 70 L40 70 Q24 70 18 62 Z" fill="#06202f"/>
               <path d="M60 43 L80 20 L134 20 L150 40 Z" fill="#06202f"/>
-              <path d="M86 25 L130 25 L140 37 L76 37 Z" fill="#e0aa5a" opacity=".55"/>
+              <path d="M86 25 L130 25 L140 37 L76 37 Z" fill="#9fd5f1" opacity=".55"/>
               <path d="M96 20 V8" stroke="#06202f" stroke-width="3"/>
             </g>
           </svg>
@@ -229,7 +227,7 @@
                   <stop offset="0" stop-color="#3a7390"/><stop offset=".35" stop-color="#174b67"/><stop offset="1" stop-color="#0a2c42"/>
                 </linearGradient>
                 <radialGradient id="abVig" cx=".5" cy=".45" r=".75">
-                  <stop offset=".6" stop-color="#061d2b" stop-opacity="0"/><stop offset="1" stop-color="#061d2b" stop-opacity=".45"/>
+                  <stop offset=".6" stop-color="#06304a" stop-opacity="0"/><stop offset="1" stop-color="#06304a" stop-opacity=".45"/>
                 </radialGradient>
               </defs>
               <rect x="-20" y="-40" width="440" height="260" fill="url(#abSky)"/>
@@ -293,9 +291,9 @@
               <g class="stamp-ring">
                 <text class="stamp-text"><textPath href="#stampPath" textLength="470" lengthAdjust="spacing">BROKERAGE · SALES · FRASER MARINE ·</textPath></text>
               </g>
-              <circle cx="100" cy="100" r="58" fill="none" stroke="#e0aa5a" stroke-width="1.5"/>
-              <text class="stamp-mono" x="100" y="116" text-anchor="middle">F</text>
-              <path d="M74 126 q6.5 -5 13 0 t13 0 t13 0 t13 0" fill="none" stroke="#e0aa5a" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="100" cy="100" r="58" fill="none" stroke="#9fd5f1" stroke-width="1.5"/>
+              <use href="#fmsMark" x="66" y="74" width="68" height="40" class="stamp-mark"/>
+              <path d="M74 126 q6.5 -5 13 0 t13 0 t13 0 t13 0" fill="none" stroke="#9fd5f1" stroke-width="2.5" stroke-linecap="round"/>
             </svg>
           </div>
         </div>
@@ -369,7 +367,7 @@
       <a href="#contact" class="btn btn-ghost">Start a conversation</a>
     </div>
     <div class="footer-bottom">
-      <span class="nav-brand">Fraser <em>Marine</em> Sales</span>
+      <span class="nav-brand"><svg class="brand-mark" aria-hidden="true"><use href="#fmsMark"/></svg><span class="brand-word">Fraser</span><span class="brand-sub">Marine Sales</span></span>
       <nav class="footer-links" aria-label="Footer">
         <a href="#services">Services</a><a href="#sell">Valuations</a><a href="#about">My story</a><a href="#contact">Contact</a>
       </nav>
@@ -377,12 +375,12 @@
     </div>
   </footer>
 
-  <script type="module" src="js/hero.js"></script>
+  <script type="module" src="js/hero.js?v=20261018"></script>
   <script>
     // If the 3D scene hasn't started after a few seconds, fall back to the static logo hero
     setTimeout(function () { var s = document.getElementById('heroStage'); if (!s.classList.contains('ready')) s.classList.add('no-3d'); }, 7000);
   </script>
-  <script src="js/site.js"></script>
-  <script src="js/listings.js"></script>
+  <script src="js/site.js?v=20261018"></script>
+  <script src="js/listings.js?v=20261018"></script>
 </body>
 </html>

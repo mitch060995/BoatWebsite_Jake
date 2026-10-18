@@ -3,8 +3,8 @@
   "short_name": "Fraser Marine",
   "start_url": "./",
   "display": "browser",
-  "background_color": "#061d2b",
-  "theme_color": "#061d2b",
+  "background_color": "#0b5d8c",
+  "theme_color": "#0b5d8c",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

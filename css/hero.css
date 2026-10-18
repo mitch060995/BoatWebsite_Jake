@@ -56,16 +56,16 @@
 /* Drone HUD (bottom right) */
 .hud {
   position: absolute; z-index: 3; right: clamp(1rem, 4vw, 3rem); bottom: clamp(1.4rem, 5svh, 3rem);
-  width: 14rem; color: rgba(244,235,221,.85); font: 600 .7rem/1 var(--sans); letter-spacing: .18em; text-transform: uppercase;
+  width: 14rem; color: rgba(234,243,249,.85); font: 600 .7rem/1 var(--sans); letter-spacing: .18em; text-transform: uppercase;
   display: grid; gap: .7rem; will-change: opacity; opacity: 0;
   --pool: .6; --pool-inset: -1.6rem -1.8rem; --pool-blur: 24px;
 }
 .hud-row { display: flex; align-items: center; gap: .6rem; }
-.hud-data { justify-content: space-between; letter-spacing: .14em; color: rgba(244,235,221,.6); font-variant-numeric: tabular-nums; }
+.hud-data { justify-content: space-between; letter-spacing: .14em; color: rgba(234,243,249,.6); font-variant-numeric: tabular-nums; }
 .hud-data b { color: var(--cream); font-weight: 700; }
 .hud-dot { width: 7px; height: 7px; border-radius: 50%; background: #e2564b; box-shadow: 0 0 0 0 rgba(226,86,75,.6); animation: rec 1.6s infinite; }
 @keyframes rec { 70% { box-shadow: 0 0 0 7px rgba(226,86,75,0); } 100% { box-shadow: 0 0 0 0 rgba(226,86,75,0); } }
-.hud-bar { height: 2px; background: rgba(244,235,221,.2); border-radius: 2px; overflow: hidden; }
+.hud-bar { height: 2px; background: rgba(234,243,249,.2); border-radius: 2px; overflow: hidden; }
 .hud-bar i { display: block; height: 100%; width: 100%; background: var(--gold); transform-origin: left; transform: scaleX(0); }
 
 /* Logo lockup */
@@ -76,25 +76,21 @@
   --l: 0; --pool: .5; --pool-inset: -2rem -4rem; --pool-blur: 64px;
 }
 .logo-wrap::before { opacity: min(1, calc(var(--l) * 2)); } /* shade lands ahead of the letters, so the half-formed logo is already readable */
-.logo-mark { width: clamp(64px, 11vh, 104px); height: auto; overflow: visible; }
-.logo-mark .ring { fill: none; stroke: var(--gold); stroke-width: 1.6; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--l)); transform: rotate(-90deg); transform-origin: center; }
-.logo-mark .ring-in { stroke: rgba(244,235,221,.55); stroke-width: 1; }
-.logo-mark .mark-f { font: italic 58px var(--serif); fill: var(--cream); opacity: var(--l); }
-.logo-mark .mark-wave { fill: none; stroke: var(--gold); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--l)); }
+.logo-mark { width: clamp(120px, 22vh, 210px); height: auto; overflow: visible; }
+.logo-mark .v, .logo-mark .f { fill: #fff; }
+.logo-mark .band { fill: var(--gold); }
+.logo-mark .v, .logo-mark .band { opacity: var(--l); transform: translateY(calc((1 - var(--l)) * 160px)); }
+.logo-mark .f { opacity: var(--l); transform: translate(calc((1 - var(--l)) * 260px), calc((1 - var(--l)) * -120px)); }
 .logo-word {
-  display: flex; justify-content: center; gap: clamp(.15rem, 1.2vw, .6rem);
-  font-family: var(--serif); font-size: clamp(3.4rem, 13vw, 8.5rem); line-height: .9; letter-spacing: .04em;
+  display: flex; justify-content: center;
+  font: italic 800 clamp(3.6rem, 14vw, 9.5rem)/.9 var(--serif); letter-spacing: .01em; color: #fff;
 }
 .logo-word span { display: inline-block; opacity: 0; will-change: transform, opacity, filter; }
 .logo-sub {
-  display: flex; align-items: center; gap: 1rem; width: 100%; justify-content: center;
-  font: 700 clamp(.7rem, 1.6vw, .95rem)/1 var(--sans); letter-spacing: .55em; text-transform: uppercase; color: var(--cream);
-  opacity: var(--l); text-shadow: 0 1px 12px rgba(4,16,24,.6);
+  font: italic 500 clamp(.9rem, 2.1vw, 1.35rem)/1 var(--serif); letter-spacing: .62em; text-transform: uppercase;
+  color: #cfe9f6; opacity: var(--l); padding-left: .62em; white-space: nowrap;
+  text-shadow: 0 1px 12px rgba(4,30,46,.6);
 }
-.logo-sub span { padding-left: .55em; white-space: nowrap; }
-.logo-sub i { height: 1px; width: clamp(2rem, 9vw, 5.5rem); background: var(--gold); transform: scaleX(var(--l)); }
-.logo-sub i:first-child { transform-origin: right; }
-.logo-sub i:last-child { transform-origin: left; }
 
 /* Closing copy */
 .hero-copy {
@@ -115,7 +111,7 @@
 }
 .scroll-hint i {
   display: block; width: 22px; height: 36px; margin: .7rem auto 0;
-  border: 2px solid rgba(244,235,221,.7); border-radius: 12px; position: relative;
+  border: 2px solid rgba(234,243,249,.7); border-radius: 12px; position: relative;
 }
 .scroll-hint i::after {
   content: ""; position: absolute; left: 50%; top: 6px; width: 4px; height: 8px; margin-left: -2px;

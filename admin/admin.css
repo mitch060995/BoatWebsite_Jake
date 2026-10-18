@@ -1,8 +1,8 @@
 /* Listings admin: plain, fast and thumb-friendly */
 :root {
-  --navy: #061d2b; --sea: #0f4c6e; --cream: #f4ebdd; --sand: #faf5ec; --gold: #e0aa5a; --gold-dark: #c98f3d;
+  --navy: #06304a; --sea: #0b5d8c; --cream: #eaf3f9; --sand: #f6f9fc; --gold: #9fd5f1; --gold-dark: #1d6a9e;
   --ink: #0b1b26; --muted: #5b6b75; --line: rgba(11,27,38,.12); --danger: #b3261e; --ok: #1d6b47;
-  --serif: "DM Serif Display", Georgia, serif; --sans: "Manrope", system-ui, -apple-system, Segoe UI, sans-serif;
+  --serif: "Barlow", "Arial Narrow", system-ui, sans-serif; --sans: "Manrope", system-ui, -apple-system, Segoe UI, sans-serif;
   color-scheme: light;
 }
 * { box-sizing: border-box; }
@@ -92,3 +92,5 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--s
 .demo-banner { margin: 0 0 1.2rem; padding: .8rem 1rem; border-radius: 12px; background: #fbeacd; color: #6b4510; font-size: .9rem; }
 .bar .link { white-space: nowrap; }
 @media (max-width: 400px) { .brand small { display: none; } .bar-actions { gap: .8rem; } }
+h1 { font-weight: 800; }
+.brand { font-style: italic; font-weight: 800; text-transform: uppercase; letter-spacing: .02em; }
