@@ -137,3 +137,7 @@
   .scroll-hint, .hud, .hero-intro { display: none; }
   .hero-intro > *, .hero-intro::before { animation: none; opacity: 1; transform: none; }
 }
+
+/* Page is held on the hero until the drone shot has played (js/hero.js) */
+html { scrollbar-gutter: stable; }
+html.hero-lock, html.hero-lock body { overflow: hidden; overscroll-behavior: none; }

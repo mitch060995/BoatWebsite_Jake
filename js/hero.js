@@ -81,6 +81,12 @@ try {
   renderer = null;
 }
 
+// The page stays on the hero until the drone shot has played (see setupPlayback)
+const root = document.documentElement;
+const lockable = !reduced && !location.hash && window.scrollY < window.innerHeight * 0.5;
+if (!renderer || !lockable) root.classList.remove('hero-lock');   // the lock itself is set by a tiny script in <head>
+const unlockHero = () => root.classList.remove('hero-lock');
+
 if (renderer) {
   const start = () => setTimeout(init, 60);   // just after the first paint
   if (document.readyState === 'complete') start(); else window.addEventListener('load', start, { once: true });
@@ -177,7 +183,7 @@ function init() {
     if (play.done) return 1;
     if (play.start === null) return 0;
     const t = (performance.now() - play.start) / 1000 / PLAY_SECONDS;
-    if (t >= 1) play.done = true;
+    if (t >= 1) { play.done = true; unlockHero(); }
     return Math.min(1, t);
   }
   const playing = () => play.start !== null && !play.done;
@@ -185,33 +191,40 @@ function init() {
     if (play.start === null && !play.done) play.start = performance.now();
   }
   function setupPlayback() {
-    // Arriving part-way down the page (e.g. a #services link): skip straight to the end
-    if (window.scrollY > window.innerHeight * 0.5) { play.done = true; return; }
-    const atTop = () => window.scrollY < 4;
+    if (!lockable) { play.done = true; unlockHero(); return; }
     const SCROLL_KEYS = ['ArrowDown', 'PageDown', ' ', 'Spacebar', 'End'];
+    const locked = () => !play.done;
+
+    // Any scroll gesture on the hero starts the film; nothing scrolls the page until it has finished
     window.addEventListener('wheel', e => {
-      if (playing()) { e.preventDefault(); return; }
-      if (!play.done && atTop() && e.deltaY > 0) { e.preventDefault(); startPlay(); }
+      if (!locked()) return;
+      e.preventDefault();
+      if (e.deltaY > 0) startPlay();
     }, { passive: false });
     let touchY = null;
     window.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
     window.addEventListener('touchmove', e => {
-      if (playing()) { if (e.cancelable) e.preventDefault(); return; }
-      if (!play.done && atTop() && touchY !== null && touchY - e.touches[0].clientY > 8) {
-        if (e.cancelable) e.preventDefault();
-        startPlay();
-      }
+      if (!locked()) return;
+      if (e.cancelable) e.preventDefault();
+      if (touchY !== null && touchY - e.touches[0].clientY > 4) startPlay();
     }, { passive: false });
     window.addEventListener('keydown', e => {
-      if (!SCROLL_KEYS.includes(e.key) || e.target.closest?.('input, textarea, select, button, a')) return;
-      if (playing()) { e.preventDefault(); return; }
-      if (!play.done && atTop()) { e.preventDefault(); startPlay(); }
+      if (!locked() || !SCROLL_KEYS.includes(e.key)) return;
+      if (e.target.closest?.('input, textarea, select')) return;
+      e.preventDefault();
+      startPlay();
     });
-    // Anything else that moves the page (scrollbar drag, a nav link) also starts it, or skips it once the hero is passed
+    // If the page moves anyway (scrollbar, momentum), put it back and start playing
     window.addEventListener('scroll', () => {
-      if (window.scrollY > window.innerHeight * 0.6) play.done = true;
-      else if (window.scrollY > 0) startPlay();
+      if (locked() && window.scrollY > 0) { window.scrollTo(0, 0); startPlay(); }
     }, { passive: true });
+    // Menu and footer links still work: they skip the film
+    document.addEventListener('click', e => {
+      const a = e.target.closest?.('a[href^="#"]');
+      if (a && a.getAttribute('href') !== '#top' && locked()) { play.done = true; unlockHero(); }
+    }, true);
+    // Someone already tried to scroll while the 3D was loading: start straight away
+    if (window.__heroIntent) startPlay();
   }
 
   /* ---------------- camera path ---------------- */
