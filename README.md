@@ -65,6 +65,8 @@ Notes:
 - Until the domain is verified, Resend's test sender only delivers to the email you signed up with.
 - To send enquiries somewhere else, add a variable `CONTACT_TO` with the new address.
 - Replying to an enquiry email replies straight to the visitor.
+- Works alongside Cloudflare Email Routing for admin@: Resend's records sit on the `send.` subdomain and
+  `resend._domainkey`, so they don't touch the routing MX/SPF records. Don't turn on "receiving" in Resend.
 - Attachments are kept for 7 days in the `LISTINGS` KV namespace (so it must be bound), and visitors are limited
   to 6 messages an hour. If email isn't set up yet, the form falls back to opening the visitor's email app.
 
@@ -101,4 +103,4 @@ Local listings are stored in `.wrangler/` and never touch the live site.
 ## Still to do
 
 - **Contact form email:** finish the Resend setup above.
-- **Contact details:** the phone number and yard address in the Contact section are placeholders.
+- **Contact details:** the phone number in the Contact section is a placeholder.
