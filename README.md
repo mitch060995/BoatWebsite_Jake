@@ -47,6 +47,27 @@ phone or computer that was logged in.
 **Status:** *Draft* is hidden; *For sale*, *Under offer* and *Sold* show on the site with a badge.
 To take a boat down, change its status to Draft or tap **Delete boat** (tap twice to confirm).
 
+## Contact form email (Resend, free)
+
+The contact form emails every enquiry, with any photos or PDFs attached, to **admin@frasermarinesales.com.au**.
+It sends through [Resend](https://resend.com) (free: 3,000 emails a month, 100 a day). One-time setup:
+
+1. Sign up at resend.com (ideally with admin@frasermarinesales.com.au).
+2. *Domains* → *Add domain* → `frasermarinesales.com.au`. Add the DNS records it shows in Cloudflare
+   (*DNS* → *Records*; Resend can add them for you with "Sign in to Cloudflare"), then click *Verify*.
+3. *API Keys* → *Create API key* (Sending access). Copy it.
+4. Cloudflare Pages project → *Settings* → *Variables and Secrets* → *Add*: type **Secret**, name
+   **`RESEND_API_KEY`**, value = the key. Also add a plain variable **`CONTACT_FROM`** =
+   `Fraser Marine Sales website <website@frasermarinesales.com.au>`.
+5. Retry the latest deployment, then send a test message from the site.
+
+Notes:
+- Until the domain is verified, Resend's test sender only delivers to the email you signed up with.
+- To send enquiries somewhere else, add a variable `CONTACT_TO` with the new address.
+- Replying to an enquiry email replies straight to the visitor.
+- Attachments are kept for 7 days in the `LISTINGS` KV namespace (so it must be bound), and visitors are limited
+  to 6 messages an hour. If email isn't set up yet, the form falls back to opening the visitor's email app.
+
 ## Demo mode (before Cloudflare is set up)
 
 On a host without the Cloudflare functions (like the GitHub Pages preview,
@@ -79,6 +100,5 @@ Local listings are stored in `.wrangler/` and never touch the live site.
 
 ## Still to do
 
-- **Contact form:** shows a thank-you message only; connect it to a form service (e.g. Web3Forms or Formspree)
-  so messages reach the owner's inbox.
-- **Contact details:** the phone, email and address in the Contact section are placeholders.
+- **Contact form email:** finish the Resend setup above.
+- **Contact details:** the phone number and yard address in the Contact section are placeholders.

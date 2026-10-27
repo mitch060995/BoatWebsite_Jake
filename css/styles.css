@@ -560,3 +560,24 @@ main > section.sell { padding-bottom: clamp(9rem, 16vw, 12rem); }
 .marquee, .stat-num, .footer-line, .service-num, .stamp-text { font-weight: 800; }
 /* eyebrows sit on dark sections too: use the light sky blue there */
 .services .eyebrow, .sell .eyebrow, .footer .eyebrow { color: var(--gold); }
+
+/* ---------- Contact form attachments ---------- */
+.attach { display: grid; gap: .5rem; }
+.attach input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.attach-btn {
+  justify-self: start; display: inline-flex; align-items: center; gap: .55rem; cursor: pointer;
+  padding: .7rem 1.1rem; border: 1.5px dashed #9cbcd3; border-radius: 12px; color: var(--sea); font-weight: 600; font-size: .92rem;
+  transition: border-color .2s, background .2s;
+}
+.attach-btn:hover, .attach input:focus-visible + .attach-hint, .attach-btn:focus-within { border-color: var(--sea); background: rgba(11,93,140,.05); }
+.attach input:focus-visible ~ .attach-btn, .attach:focus-within .attach-btn { outline: 2px solid var(--sea); outline-offset: 2px; }
+.attach-btn svg { width: 1.15rem; height: 1.15rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.attach-hint { margin: 0; font-size: .82rem; color: var(--muted); }
+.attach-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.attach-list li { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .45rem .7rem; border-radius: 10px; background: var(--sand); font-size: .88rem; min-width: 0; }
+.attach-list li span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attach-list button { flex: none; border: 0; background: none; color: var(--muted); font-size: 1.1rem; line-height: 1; cursor: pointer; padding: .1rem .3rem; }
+.attach-list button:hover { color: #c0573b; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-note.error { color: #b3261e; }
+.form-note.ok { color: #1d6b47; }

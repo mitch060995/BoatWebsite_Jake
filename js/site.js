@@ -295,11 +295,94 @@
   /* ---------------------------------------------------------
      Contact form + year
      --------------------------------------------------------- */
-  // NOTE: form isn't wired to a backend yet — hook up Formspree/Netlify Forms/etc. before launch.
-  $('#contactForm').addEventListener('submit', e => {
+  /* ---------------------------------------------------------
+     Contact form: sends to /api/contact (emailed to the owner with any attachments).
+     Photos are shrunk in the browser first. Where there's no server (e.g. the GitHub
+     Pages preview) it falls back to opening the visitor's email app.
+     --------------------------------------------------------- */
+  const OWNER_EMAIL = 'admin@frasermarinesales.com.au';
+  const form = $('#contactForm'), note = $('#formNote');
+  const fileInput = $('#f-files'), list = $('#attachList');
+  const MAX_FILES = 6, MAX_PDF = 10 * 1024 * 1024;
+  let files = [];
+  const say = (text, kind = '') => { note.textContent = text; note.className = `form-note ${kind}`; };
+  const kb = n => (n > 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`);
+
+  const renderFiles = () => {
+    list.innerHTML = '';
+    files.forEach((f, i) => {
+      const li = document.createElement('li');
+      const name = document.createElement('span'); name.textContent = `${f.name} (${kb(f.size)})`;
+      const rm = document.createElement('button'); rm.type = 'button'; rm.textContent = '×'; rm.setAttribute('aria-label', `Remove ${f.name}`);
+      rm.addEventListener('click', () => { files.splice(i, 1); renderFiles(); });
+      li.append(name, rm); list.append(li);
+    });
+  };
+  fileInput.addEventListener('change', () => {
+    const picked = [...fileInput.files];
+    fileInput.value = '';
+    for (const f of picked) {
+      if (files.length >= MAX_FILES) { say(`You can attach up to ${MAX_FILES} files.`, 'error'); break; }
+      const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+      if (!isPdf && !f.type.startsWith('image/')) { say(`"${f.name}" isn't a photo or PDF.`, 'error'); continue; }
+      if (isPdf && f.size > MAX_PDF) { say(`"${f.name}" is over 10 MB.`, 'error'); continue; }
+      files.push(f);
+    }
+    renderFiles();
+  });
+
+  // Phone photos are huge: shrink to max 2000px JPEG before sending
+  async function shrink(file) {
+    if (!file.type.startsWith('image/')) return file;
+    try {
+      const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      const k = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+      c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+      const blob = await new Promise(res => c.toBlob(res, 'image/jpeg', 0.85));
+      if (blob) return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    } catch { /* fall through */ }
+    return file;
+  }
+
+  function mailtoFallback(data) {
+    const body = [`Name: ${data.get('name')}`, `Email: ${data.get('email')}`, `Interested in: ${data.get('topic')}`, '', data.get('message')].join('\n');
+    location.href = `mailto:${OWNER_EMAIL}?subject=${encodeURIComponent('Website enquiry: ' + data.get('topic'))}&body=${encodeURIComponent(body)}`;
+    say(files.length ? 'Your email app should open with your message. Please attach your files there before sending.'
+      : 'Your email app should open with your message ready to send.', 'ok');
+  }
+
+  // Plain (no-JavaScript) submissions come back to /?sent=1#contact
+  const sent = new URLSearchParams(location.search).get('sent');
+  if (sent === '1') say("Thanks! Your message is on its way and I'll be in touch shortly.", 'ok');
+  if (sent === '0') say('Sorry, that didn’t send. Please try again or email admin@frasermarinesales.com.au.', 'error');
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
-    $('#formNote').textContent = "Thanks! I'll be in touch shortly.";
-    e.target.reset();
+    const btn = form.querySelector('button[type=submit]');
+    btn.disabled = true;
+    try {
+      const data = new FormData(form);
+      data.delete('files');
+      if (files.length) say('Preparing attachments…');
+      for (const f of files) data.append('files', await shrink(f));
+      say('Sending…');
+      let res;
+      try {
+        res = await fetch(form.getAttribute('action'), { method: 'POST', body: data, headers: { accept: 'application/json' } });
+      } catch {
+        res = null;
+      }
+      const isJson = res && (res.headers.get('content-type') || '').includes('application/json');
+      if (!isJson) { mailtoFallback(data); return; }      // no server here: hand over to the email app
+      const out = await res.json();
+      if (!res.ok) { say(out.error || 'Sorry, that didn’t send. Please try again or email us directly.', 'error'); return; }
+      say("Thanks! Your message is on its way and I'll be in touch shortly.", 'ok');
+      form.reset(); files = []; renderFiles();
+    } finally {
+      btn.disabled = false;
+    }
   });
 
   $('#year').textContent = new Date().getFullYear();

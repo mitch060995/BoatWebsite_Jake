@@ -26,8 +26,8 @@
       addEventListener('keydown', intent);
     })();
   </script>
-  <link rel="stylesheet" href="css/styles.css?v=20261023">
-  <link rel="stylesheet" href="css/hero.css?v=20261023">
+  <link rel="stylesheet" href="css/styles.css?v=20261027">
+  <link rel="stylesheet" href="css/hero.css?v=20261027">
   <script type="importmap">
   {
     "imports": {
@@ -323,11 +323,11 @@
           <p class="reveal" style="--d:.3s">Selling a boat, after a valuation, or interested in a boat I've got for sale? Send me a message and I'll get back to you.</p>
           <dl class="contact-list reveal" style="--d:.45s">
             <dt>Phone</dt><dd><a href="tel:+0000000000">(000) 000-0000</a></dd>
-            <dt>Email</dt><dd><a href="mailto:hello@example.com">hello@example.com</a></dd>
+            <dt>Email</dt><dd><a href="mailto:admin@frasermarinesales.com.au">admin@frasermarinesales.com.au</a></dd>
             <dt>Yard</dt><dd>123 Harbour Road, Your Town</dd>
           </dl>
         </div>
-        <form class="contact-form reveal" style="--d:.2s" id="contactForm">
+        <form class="contact-form reveal" style="--d:.2s" id="contactForm" action="api/contact" method="post" enctype="multipart/form-data">
           <div class="field">
             <input id="f-name" name="name" required autocomplete="name" placeholder=" ">
             <label for="f-name">Name</label>
@@ -346,9 +346,19 @@
             <label for="f-topic">I'm interested in</label>
           </div>
           <div class="field">
-            <textarea id="f-message" name="message" rows="4" placeholder=" "></textarea>
+            <textarea id="f-message" name="message" rows="4" placeholder=" " required></textarea>
             <label for="f-message">Message</label>
           </div>
+          <div class="attach">
+            <label class="attach-btn" for="f-files">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5 12.5 20a5 5 0 0 1-7-7l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>
+              Attach photos or documents
+            </label>
+            <input id="f-files" name="files" type="file" multiple accept="image/*,application/pdf">
+            <p class="attach-hint" id="attachHint">Optional. Up to 6 files: photos (resized automatically) or PDFs up to 10 MB.</p>
+            <ul class="attach-list" id="attachList"></ul>
+          </div>
+          <div class="hp" aria-hidden="true"><label>Leave this empty<input name="company" tabindex="-1" autocomplete="off"></label></div>
           <button class="btn btn-gold" type="submit" data-magnetic><span class="btn-label">Send message <span class="btn-arrow" aria-hidden="true">→</span></span></button>
           <p class="form-note" id="formNote" role="status"></p>
         </form>
@@ -384,16 +394,16 @@
       <nav class="footer-links" aria-label="Footer">
         <a href="#services">Services</a><a href="#sell">Valuations</a><a href="#about">My story</a><a href="#contact">Contact</a>
       </nav>
-      <span>© <span id="year"></span> Fraser Marine Sales</span>
+      <span>© <span id="year"></span> Fraser Marine Sales · ABN 79 681 509 464</span>
     </div>
   </footer>
 
-  <script type="module" src="js/hero.js?v=20261023"></script>
+  <script type="module" src="js/hero.js?v=20261027"></script>
   <script>
     // If the 3D scene hasn't started after a few seconds, fall back to the static logo hero
     setTimeout(function () { var s = document.getElementById('heroStage'); if (!s.classList.contains('ready')) { s.classList.add('no-3d'); document.documentElement.classList.remove('hero-lock'); } }, 7000);
   </script>
-  <script src="js/site.js?v=20261023"></script>
-  <script src="js/listings.js?v=20261023"></script>
+  <script src="js/site.js?v=20261027"></script>
+  <script src="js/listings.js?v=20261027"></script>
 </body>
 </html>
