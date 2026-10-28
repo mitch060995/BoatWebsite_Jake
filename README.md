@@ -103,4 +103,3 @@ Local listings are stored in `.wrangler/` and never touch the live site.
 ## Still to do
 
 - **Contact form email:** finish the Resend setup above.
-- **Contact details:** the phone number in the Contact section is a placeholder.
