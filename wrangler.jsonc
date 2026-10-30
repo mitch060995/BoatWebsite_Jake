@@ -1,0 +1,19 @@
+// Deploys the site as a Cloudflare Worker (Workers & Pages → Create application → import this repo,
+// deploy command `npx wrangler deploy`). Static files come from the repo root; .assetsignore keeps the
+// server code and docs out of them. Secrets (ADMIN_PASSWORD, RESEND_API_KEY) are set in the dashboard.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "boatwebsite-jake",
+  "main": "server/worker.js",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*", "/photos/*"]
+  },
+  // Listings, photos and contact-form attachments. Created automatically on the first deploy.
+  "kv_namespaces": [{ "binding": "LISTINGS" }],
+  // Keep variables added in the dashboard (e.g. CONTACT_FROM) when the site redeploys.
+  "keep_vars": true,
+  "observability": { "enabled": true }
+}

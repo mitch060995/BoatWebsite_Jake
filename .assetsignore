@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+.claude
+.wrangler
+.dev.vars
+node_modules
+functions
+server
+wrangler.jsonc
+README.md

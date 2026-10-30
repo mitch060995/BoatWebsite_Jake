@@ -1,7 +1,7 @@
 # Fraser Marine Sales — website
 
-Plain HTML/CSS/JS with no build step, hosted on **Cloudflare Pages**. The boat listings use Cloudflare's own
-Pages Functions and KV storage (both on the free plan), so there's no other service to sign up for.
+Plain HTML/CSS/JS with no build step, hosted on **Cloudflare Workers**. The boat listings use Cloudflare's own
+Worker functions and KV storage (both on the free plan), so there's no other service to sign up for.
 
 ```
 index.html              the public site
@@ -17,24 +17,28 @@ css/  js/               site styles and scripts (hero.js = 3D opener, listings.j
 
 ## One-time Cloudflare setup (website manager, about 15 minutes)
 
-1. **Create the site.** Cloudflare dashboard → *Workers & Pages* → *Create* → *Pages* → *Connect to Git* →
-   pick `BoatWebsite_Jake`. Framework preset: *None*. Build command: *(leave empty)*. Build output directory: `/`.
-   Click *Save and Deploy*.
-2. **Create the storage.** *Storage & Databases* → *KV* → *Create* → name it `fraser-listings`.
-3. **Connect the storage to the site.** Your Pages project → *Settings* → *Bindings* → *Add* → *KV namespace*:
-   variable name **`LISTINGS`**, namespace `fraser-listings`. Save.
-4. **Set the owner's password.** Your Pages project → *Settings* → *Variables and Secrets* → *Add*:
-   type **Secret**, name **`ADMIN_PASSWORD`**, value = a strong password for the owner. Save.
-5. **Apply it.** *Deployments* → the latest deployment → *⋯* → *Retry deployment* (settings only take effect on the
-   next deploy).
-6. **Custom domain** (when ready): your Pages project → *Custom domains* → *Set up a domain* →
-   `yourdomain.com.au`. If the domain's nameservers already point to Cloudflare it connects automatically.
-7. **Hand over to the owner:** the address `https://yourdomain.com.au/admin/` and the password. That's all they need.
+The site deploys as a Cloudflare **Worker** (`wrangler.jsonc`, entry `server/worker.js`, which runs the handlers in
+`functions/`). It also still works as a Pages project if you ever use one.
+
+1. **Create the site.** Cloudflare dashboard → *Workers & Pages* → *Create application* → import
+   `BoatWebsite_Jake` from GitHub. Leave the build command empty and the deploy command as `npx wrangler deploy`.
+   Click *Deploy*. The first deploy also creates the KV storage for listings and photos (bound as `LISTINGS`).
+   If the build log says it couldn't create it: *Storage & Databases* → *KV* → *Create* (`fraser-listings`), copy
+   its ID into `wrangler.jsonc` as `{ "binding": "LISTINGS", "id": "<id>" }`, and push.
+2. **Set the owner's password.** The Worker → *Settings* → *Variables and Secrets* → *Add*:
+   type **Secret**, name **`ADMIN_PASSWORD`**, value = a strong password for the owner. *Deploy*.
+3. **Test it** on the `workers.dev` address: open `/admin/`, sign in, add a boat with a photo, check it shows on the
+   home page, then delete it.
+4. **Custom domain** (once the domain is Active in Cloudflare): the Worker → *Settings* → *Domains & Routes* →
+   *Add* → *Custom domain* → `yourdomain.com.au`, and again for `www.yourdomain.com.au`.
+5. **Hand over to the owner:** the address `https://yourdomain.com.au/admin/` and the password. That's all they need.
+
+Every push to `main` redeploys automatically. Secrets and dashboard variables are kept between deploys.
 
 ### Changing the owner's password
 
-Edit the `ADMIN_PASSWORD` secret (step 4) and retry the latest deployment (step 5). This also signs out any
-phone or computer that was logged in.
+Edit the `ADMIN_PASSWORD` secret (step 2) and click *Deploy*. This also signs out any phone or computer that was
+logged in.
 
 ## For the owner: adding a boat from your phone
 
@@ -56,10 +60,10 @@ It sends through [Resend](https://resend.com) (free: 3,000 emails a month, 100 a
 2. *Domains* → *Add domain* → `frasermarinesales.com.au`. Add the DNS records it shows in Cloudflare
    (*DNS* → *Records*; Resend can add them for you with "Sign in to Cloudflare"), then click *Verify*.
 3. *API Keys* → *Create API key* (Sending access). Copy it.
-4. Cloudflare Pages project → *Settings* → *Variables and Secrets* → *Add*: type **Secret**, name
+4. The Worker → *Settings* → *Variables and Secrets* → *Add*: type **Secret**, name
    **`RESEND_API_KEY`**, value = the key. Also add a plain variable **`CONTACT_FROM`** =
    `Fraser Marine Sales website <website@frasermarinesales.com.au>`.
-5. Retry the latest deployment, then send a test message from the site.
+5. Click *Deploy*, then send a test message from the site.
 
 Notes:
 - Until the domain is verified, Resend's test sender only delivers to the email you signed up with.
@@ -87,17 +91,17 @@ browser's data is cleared. On Cloudflare the real server is found and demo mode 
 
 ## Free plan limits (Cloudflare)
 
-KV storage on the free plan allows around 1 GB of data, 100,000 reads and 1,000 writes a day, and Pages Functions
+KV storage on the free plan allows around 1 GB of data, 100,000 reads and 1,000 writes a day, and Workers
 around 100,000 requests a day: far more than a boat dealer needs. Photos are cached by visitors' browsers and
 Cloudflare's network, so repeat views barely touch these limits. No credit card is required.
 
 ## Running it locally
 
 ```
-npx wrangler pages dev . --kv LISTINGS --binding ADMIN_PASSWORD=test-pass-123
+npx wrangler dev --var ADMIN_PASSWORD:test-pass-123
 ```
 
-Then open http://localhost:8788 (site) and http://localhost:8788/admin/ (password `test-pass-123`).
+Then open http://localhost:8787 (site) and http://localhost:8787/admin/ (password `test-pass-123`).
 Local listings are stored in `.wrangler/` and never touch the live site.
 
 ## Still to do
