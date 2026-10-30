@@ -32,7 +32,7 @@
       const isJson = (res.headers.get('content-type') || '').includes('application/json');
       if (!isJson) throw new Error('no server');
       const s = await res.json();
-      if (!s.ready) { $('#setupMsg').textContent = 'The password or storage hasn’t been set up in Cloudflare yet.'; show('setupView'); return; }
+      if (!s.ready) { $('#setupMsg').textContent = `Not set up in Cloudflare yet: ${(s.missing || ['ADMIN_PASSWORD', 'LISTINGS']).join(' and ')}.`; show('setupView'); return; }
       if (s.admin) enter(); else show('loginView');
     } catch {
       demo = true;

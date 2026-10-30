@@ -1,6 +1,7 @@
-// GET /api/session -> { admin: true|false }
+// GET /api/session -> { admin: true|false, ready, missing: [settings not set up yet] }
 import { json, isAdmin } from '../../server/lib.js';
 
 export async function onRequestGet({ request, env }) {
-  return json({ admin: await isAdmin(request, env), ready: Boolean(env.ADMIN_PASSWORD && env.LISTINGS) });
+  const missing = [!env.ADMIN_PASSWORD && 'ADMIN_PASSWORD', !env.LISTINGS && 'LISTINGS'].filter(Boolean);
+  return json({ admin: await isAdmin(request, env), ready: !missing.length, missing });
 }
