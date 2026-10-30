@@ -3,7 +3,7 @@
 // server code and docs out of them. Secrets (ADMIN_PASSWORD, RESEND_API_KEY) are set in the dashboard.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "boatwebsite-jake",
+  "name": "fraser-marine-sales",
   "main": "server/worker.js",
   "compatibility_date": "2025-10-01",
   "assets": {
