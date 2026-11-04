@@ -13,7 +13,9 @@
   },
   // Listings, photos and contact-form attachments (KV namespace "fraser-listings").
   "kv_namespaces": [{ "binding": "LISTINGS", "id": "6548e022349d4a4d9c9b0effe32f9b19" }],
-  // Keep variables added in the dashboard (e.g. CONTACT_FROM) when the site redeploys.
+  // Sender shown on contact-form emails (they go to admin@frasermarinesales.com.au).
+  "vars": { "CONTACT_FROM": "Fraser Marine Sales website <website@frasermarinesales.com.au>" },
+  // Keep any other variables added in the dashboard when the site redeploys.
   "keep_vars": true,
   "observability": { "enabled": true }
 }
