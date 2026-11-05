@@ -1,4 +1,4 @@
-// POST /api/contact  (multipart form: name, email, topic, message, files[], company = honeypot)
+// POST /api/contact  (multipart form: name, email, phone, topic, message, files[], company = honeypot)
 // Emails the enquiry to the owner through Resend (https://resend.com), with any photos/PDFs attached.
 //
 // Settings (Cloudflare Pages → Settings → Variables and Secrets):
@@ -44,10 +44,12 @@ export async function onRequestPost({ request, env }) {
 
   const name = clean(form.get('name'), 120);
   const email = clean(form.get('email'), 200);
+  const phone = clean(form.get('phone'), 30);
   const topic = clean(form.get('topic'), 80) || 'General enquiry';
   const message = clean(form.get('message'), 8000);
   if (!name || !message) return reply({ error: 'Please add your name and a message.' }, 400);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply({ error: 'Please check your email address.' }, 400);
+  if ((phone.match(/\d/g) || []).length < 8 || !/^[0-9 +()\-]+$/.test(phone)) return reply({ error: 'Please add a phone number we can call you on.' }, 400);
 
   // Rate limit per IP (uses the same KV namespace as the listings, when it's connected)
   const ip = request.headers.get('cf-connecting-ip') || 'unknown';
@@ -78,7 +80,7 @@ export async function onRequestPost({ request, env }) {
 
   const subject = `Website enquiry: ${topic} – ${name}`;
   const text = [
-    `Name: ${name}`, `Email: ${email}`, `Interested in: ${topic}`, '', message, '',
+    `Name: ${name}`, `Email: ${email}`, `Phone: ${phone}`, `Interested in: ${topic}`, '', message, '',
     attachments.length ? `Attachments (also downloadable for 7 days):\n${attachments.map(a => `${a.filename}: ${a.path}`).join('\n')}` : '',
     '', 'Reply to this email to answer them directly.',
   ].join('\n');
@@ -88,6 +90,7 @@ export async function onRequestPost({ request, env }) {
       <table cellpadding="4" style="border-collapse:collapse">
         <tr><td><b>Name</b></td><td>${esc(name)}</td></tr>
         <tr><td><b>Email</b></td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+        <tr><td><b>Phone</b></td><td><a href="tel:${esc(phone.replace(/[^\d+]/g, ''))}">${esc(phone)}</a></td></tr>
         <tr><td><b>Interested in</b></td><td>${esc(topic)}</td></tr>
       </table>
       <p style="white-space:pre-wrap;border-left:3px solid #9fd5f1;padding-left:12px">${esc(message)}</p>
